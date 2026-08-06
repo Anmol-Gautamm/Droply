@@ -426,28 +426,24 @@ function openShareModal(drop) {
   renderSimpleQR('modalQrCanvas', shareUrl);
 }
 
-function renderSimpleQR(canvasId, text) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
+function renderSimpleQR(containerId, text) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
 
-  const options = {
-    width: 180,
-    margin: 2,
-    color: {
-      dark: '#06b6d4',
-      light: '#070a12'
+  try {
+    if (typeof window.QRCode === 'function') {
+      new window.QRCode(container, {
+        text: text,
+        width: 170,
+        height: 170,
+        colorDark: '#06b6d4',
+        colorLight: '#070a12',
+        correctLevel: window.QRCode.CorrectLevel.M
+      });
     }
-  };
-
-  // Always use drawRealQRCode if available for 100% reliable local rendering
-  if (typeof window.drawRealQRCode === 'function') {
-    window.drawRealQRCode(canvas, text, options);
-    return;
-  }
-
-  // Fallback to CDN QRCode library if loaded
-  if (window.QRCode && typeof window.QRCode.toCanvas === 'function') {
-    window.QRCode.toCanvas(canvas, text, options);
+  } catch (err) {
+    console.error('QR rendering error:', err);
   }
 }
 
