@@ -1,5 +1,5 @@
 /**
- * Droply Standalone Application Logic
+ * Droply Application Logic
  * Powered by Web Crypto API, IndexedDB, and BroadcastChannel
  */
 
@@ -237,13 +237,13 @@ function showToast(message, type = 'info') {
   const container = document.getElementById('toastContainer');
   if (!container) return;
   const toast = document.createElement('div');
-  toast.className = 'toast-item';
+  toast.className = 'bg-surface-container-high border border-primary/40 text-on-surface px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 font-medium text-sm transition-all duration-300 transform translate-y-2';
   
-  let icon = 'ℹ️';
-  if (type === 'success') icon = '✅';
-  if (type === 'error') icon = '⚠️';
+  let icon = 'info';
+  if (type === 'success') icon = 'check_circle';
+  if (type === 'error') icon = 'warning';
 
-  toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+  toast.innerHTML = `<span class="material-symbols-outlined ${type === 'success' ? 'text-tertiary' : type === 'error' ? 'text-error' : 'text-primary'}">${icon}</span><span>${message}</span>`;
   container.appendChild(toast);
 
   setTimeout(() => {
@@ -257,6 +257,16 @@ function formatBytes(bytes) {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function getFileIcon(type, filename) {
+  if (type?.includes('pdf') || filename?.endsWith('.pdf')) return 'picture_as_pdf';
+  if (type?.startsWith('image/')) return 'image';
+  if (type?.startsWith('video/')) return 'movie';
+  if (type?.startsWith('audio/')) return 'audio_file';
+  if (type?.startsWith('text/') || type?.includes('json') || type?.includes('js') || type?.includes('html')) return 'code';
+  if (type?.includes('zip') || type?.includes('archive') || type?.includes('tar')) return 'folder_zip';
+  return 'description';
 }
 
 // Global App State
@@ -282,7 +292,7 @@ async function updateActiveBadge() {
   const badge = document.getElementById('activeCountBadge');
   if (badge) {
     badge.textContent = drops.length;
-    badge.style.display = drops.length > 0 ? 'inline-block' : 'none';
+    badge.classList.toggle('hidden', drops.length === 0);
   }
 }
 
@@ -294,27 +304,28 @@ async function renderMyDrops() {
 
   if (drops.length === 0) {
     container.innerHTML = `
-      <div style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
-        <p style="font-size: 1.1rem; font-weight: 600;">No Active Drops Found</p>
-        <p style="font-size: 0.85rem; margin-top: 4px;">Files you drop will appear here for easy management.</p>
+      <div class="text-center py-12 text-on-surface-variant">
+        <span class="material-symbols-outlined text-4xl mb-2 opacity-50">folder_open</span>
+        <p class="text-base font-semibold">No Active Drops Found</p>
+        <p class="text-xs mt-1">Files you drop will appear here for easy management.</p>
       </div>
     `;
     return;
   }
 
   let html = `
-    <table class="drops-table">
+    <table class="w-full border-collapse text-left text-sm">
       <thead>
-        <tr>
-          <th>Code</th>
-          <th>File Name</th>
-          <th>Size</th>
-          <th>Expiration</th>
-          <th>Downloads</th>
-          <th>Actions</th>
+        <tr class="border-b border-outline-variant/30 text-on-surface-variant font-semibold">
+          <th class="py-3 px-4">Code</th>
+          <th class="py-3 px-4">File Name</th>
+          <th class="py-3 px-4">Size</th>
+          <th class="py-3 px-4">Expiration</th>
+          <th class="py-3 px-4">Downloads</th>
+          <th class="py-3 px-4">Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="divide-y divide-outline-variant/10">
   `;
 
   drops.forEach(drop => {
@@ -328,20 +339,20 @@ async function renderMyDrops() {
     }
 
     html += `
-      <tr>
-        <td><span class="code-badge" style="font-size: 0.95rem; padding: 4px 10px;">${drop.code}</span></td>
-        <td>
-          <div style="font-weight: 600; color: var(--text-main);">${drop.fileName}</div>
-          ${drop.isEncrypted ? '<span style="font-size:0.75rem; color:var(--color-secondary);">🔒 Encrypted</span>' : ''}
+      <tr class="hover:bg-surface-container/40 transition-colors">
+        <td class="py-3 px-4"><span class="font-label-md font-bold text-primary bg-primary-container/20 border border-primary/30 px-2.5 py-1 rounded-lg">${drop.code}</span></td>
+        <td class="py-3 px-4">
+          <div class="font-medium text-on-surface">${drop.fileName}</div>
+          ${drop.isEncrypted ? '<span class="text-[11px] text-tertiary flex items-center gap-1"><span class="material-symbols-outlined text-xs">lock</span> Encrypted</span>' : ''}
         </td>
-        <td style="color: var(--text-muted);">${formatBytes(drop.fileSize)}</td>
-        <td style="color: var(--color-warning);">${expiryStr}</td>
-        <td><strong>${drop.downloadsCount || 0}</strong></td>
-        <td>
-          <div style="display: flex; gap: 6px;">
-            <button onclick="copyText('${drop.code}', 'Code')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">📋 Code</button>
-            <button onclick="copyText('${shareUrl}', 'Link')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">🔗 Link</button>
-            <button onclick="handleDeleteDrop('${drop.code}')" class="btn-danger" style="padding: 6px 10px; font-size: 0.8rem;">🗑️ Delete</button>
+        <td class="py-3 px-4 text-on-surface-variant">${formatBytes(drop.fileSize)}</td>
+        <td class="py-3 px-4 text-secondary">${expiryStr}</td>
+        <td class="py-3 px-4 font-bold text-on-surface">${drop.downloadsCount || 0}</td>
+        <td class="py-3 px-4">
+          <div class="flex items-center gap-2">
+            <button onclick="copyText('${drop.code}', 'Code')" class="bg-surface-container border border-outline-variant/40 text-on-surface px-2.5 py-1 rounded-lg text-xs hover:bg-surface-bright transition-colors flex items-center gap-1">📋 Code</button>
+            <button onclick="copyText('${shareUrl}', 'Link')" class="bg-surface-container border border-outline-variant/40 text-on-surface px-2.5 py-1 rounded-lg text-xs hover:bg-surface-bright transition-colors flex items-center gap-1">🔗 Link</button>
+            <button onclick="handleDeleteDrop('${drop.code}')" class="bg-error-container/30 border border-error/40 text-error px-2 py-1 rounded-lg text-xs hover:bg-error-container/60 transition-colors flex items-center gap-1">🗑️ Delete</button>
           </div>
         </td>
       </tr>
@@ -419,10 +430,7 @@ function openShareModal(drop) {
   const shareUrl = `${window.location.origin}${window.location.pathname}?code=${drop.code}`;
   document.getElementById('modalShareUrl').value = shareUrl;
 
-  // Show modal first so layout dimensions are active
   modal.classList.remove('hidden');
-
-  // Render QR Code immediately
   renderSimpleQR('modalQrCanvas', shareUrl);
 }
 
@@ -437,17 +445,18 @@ function renderSimpleQR(containerId, text) {
         text: text,
         width: 170,
         height: 170,
-        colorDark: '#06b6d4',
-        colorLight: '#070a12',
-        correctLevel: window.QRCode.CorrectLevel.M
+        colorDark: '#c0c1ff',
+        colorLight: '#131315'
       });
+    } else {
+      console.warn('window.QRCode is not loaded yet');
     }
   } catch (err) {
     console.error('QR rendering error:', err);
   }
 }
 
-// Claim File Lookup
+// Claim File Lookup & Metadata Sidebar Populator
 async function lookupClaimCode(codeToSearch) {
   const code = (codeToSearch || document.getElementById('claimCodeInput').value).trim().toUpperCase();
   if (!code) {
@@ -468,22 +477,52 @@ async function lookupClaimCode(codeToSearch) {
   }
 
   currentClaimDrop = drop;
-  document.getElementById('claimDisplayCode').textContent = drop.code;
-  document.getElementById('claimFileName').textContent = drop.fileName;
-  document.getElementById('claimFileInfo').textContent = `Size: ${formatBytes(drop.fileSize)} • Downloads: ${drop.downloadsCount || 0}`;
+
+  // Populate Sidebar Metadata
+  document.getElementById('previewWindowFilename').textContent = drop.fileName;
+  document.getElementById('sidebarFileName').textContent = drop.fileName;
+  document.getElementById('sidebarFileIcon').textContent = getFileIcon(drop.fileType, drop.fileName);
+  
+  const dateStr = new Date(drop.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  document.getElementById('sidebarDateAdded').textContent = `Added ${dateStr}`;
+  
+  document.getElementById('sidebarFileSize').textContent = formatBytes(drop.fileSize);
+  document.getElementById('sidebarDownloads').textContent = drop.downloadsCount || 0;
+
+  // Expiration Progress Bar
+  const expiryBar = document.getElementById('sidebarExpiryBar');
+  const expiryText = document.getElementById('sidebarExpiryText');
+  if (drop.expiryType === '1time') {
+    expiryText.textContent = '1-time download';
+    expiryBar.style.width = '100%';
+  } else if (drop.expiresAt) {
+    const totalMs = drop.expiresAt - drop.createdAt;
+    const remainingMs = drop.expiresAt - Date.now();
+    const pct = Math.max(5, Math.min(100, Math.round((remainingMs / totalMs) * 100)));
+    expiryBar.style.width = `${pct}%`;
+    const mins = Math.floor(remainingMs / (1000 * 60));
+    expiryText.textContent = mins < 60 ? `${mins} mins` : `${Math.floor(mins / 60)} hours`;
+  } else {
+    expiryText.textContent = 'No expiry';
+    expiryBar.style.width = '100%';
+  }
+
+  // Encryption badge
+  const encBadge = document.getElementById('sidebarEncryptedBadge');
+  if (encBadge) {
+    encBadge.style.display = drop.isEncrypted ? 'flex' : 'none';
+  }
 
   if (drop.isEncrypted) {
     document.getElementById('passwordUnlockForm').style.display = 'block';
-    document.getElementById('claimPreviewSection').style.display = 'none';
     currentDecryptedBlob = null;
   } else {
     document.getElementById('passwordUnlockForm').style.display = 'none';
-    document.getElementById('claimPreviewSection').style.display = 'block';
     currentDecryptedBlob = drop.fileBlob;
     renderFilePreview('claimPreviewBox', drop.fileBlob, drop.fileName, drop.fileType);
   }
 
-  resultContainer.style.display = 'block';
+  resultContainer.style.display = 'flex';
 }
 
 function renderFilePreview(containerId, blob, fileName, fileType) {
@@ -496,36 +535,67 @@ function renderFilePreview(containerId, blob, fileName, fileType) {
   if (fileType && fileType.startsWith('image/')) {
     const img = document.createElement('img');
     img.src = url;
-    img.className = 'preview-image';
+    img.className = 'max-w-full max-h-[360px] rounded-lg object-contain shadow-lg border border-outline-variant/30';
     container.appendChild(img);
   } else if (fileType && fileType.startsWith('video/')) {
     const video = document.createElement('video');
     video.src = url;
     video.controls = true;
-    video.className = 'preview-video';
+    video.className = 'w-full max-h-[360px] rounded-lg shadow-lg';
     container.appendChild(video);
   } else if (fileType && fileType.startsWith('audio/')) {
     const audio = document.createElement('audio');
     audio.src = url;
     audio.controls = true;
-    audio.className = 'preview-audio';
+    audio.className = 'w-full max-w-md';
     container.appendChild(audio);
   } else if (fileType && fileType.startsWith('text/')) {
     const reader = new FileReader();
     reader.onload = (e) => {
       const pre = document.createElement('pre');
-      pre.className = 'preview-text';
+      pre.className = 'font-mono text-xs text-on-surface bg-surface border border-outline-variant/30 p-4 rounded-lg w-full max-h-[340px] overflow-auto whitespace-pre-wrap';
       pre.textContent = e.target.result;
       container.appendChild(pre);
     };
     reader.readAsText(blob.slice(0, 3000));
   } else {
-    container.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">Preview not available for this format. Click download below!</p>`;
+    // Stylized document card preview for PDFs, zips, docs
+    container.innerHTML = `
+      <div class="bg-surface border border-outline-variant/20 shadow-lg p-6 rounded-lg w-full max-w-sm flex flex-col gap-3 relative z-10">
+        <div class="h-3 w-1/3 bg-surface-container-high rounded-sm"></div>
+        <div class="text-xl font-bold text-on-surface border-b border-outline-variant/30 pb-2 truncate">${fileName}</div>
+        <div class="flex flex-col gap-2 my-2">
+          <div class="h-2.5 w-full bg-surface-container-high rounded-sm"></div>
+          <div class="h-2.5 w-full bg-surface-container-high rounded-sm"></div>
+          <div class="h-2.5 w-4/5 bg-surface-container-high rounded-sm"></div>
+        </div>
+        <div class="flex justify-end mt-2">
+          <span class="material-symbols-outlined text-secondary text-4xl">${getFileIcon(fileType, fileName)}</span>
+        </div>
+      </div>
+    `;
   }
 }
 
 // Initialize Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
+  // Hero Action Buttons
+  const heroBtnUpload = document.getElementById('heroBtnUpload');
+  if (heroBtnUpload) {
+    heroBtnUpload.addEventListener('click', () => {
+      switchTab('upload');
+      document.getElementById('tab-upload')?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
+  const heroBtnRetrieve = document.getElementById('heroBtnRetrieve');
+  if (heroBtnRetrieve) {
+    heroBtnRetrieve.addEventListener('click', () => {
+      switchTab('claim');
+      document.getElementById('tab-claim')?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
   // Navigation Tabs
   document.querySelectorAll('.nav-tab-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -623,7 +693,6 @@ document.addEventListener('DOMContentLoaded', () => {
         currentDecryptedBlob = blob;
         showToast('File unlocked!', 'success');
         document.getElementById('passwordUnlockForm').style.display = 'none';
-        document.getElementById('claimPreviewSection').style.display = 'block';
         renderFilePreview('claimPreviewBox', blob, currentClaimDrop.fileName, currentClaimDrop.fileType);
       } catch (err) {
         showToast('Incorrect password. Try again.', 'error');
@@ -652,7 +721,37 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         showToast('Download started!', 'success');
       }
+      if (updated) {
+        document.getElementById('sidebarDownloads').textContent = updated.downloadsCount || 0;
+      }
       updateActiveBadge();
+    });
+  }
+
+  // Sidebar Buttons
+  const btnCopyLinkSidebar = document.getElementById('btnCopyLinkSidebar');
+  if (btnCopyLinkSidebar) {
+    btnCopyLinkSidebar.addEventListener('click', () => {
+      if (!currentClaimDrop) return;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?code=${currentClaimDrop.code}`;
+      copyText(shareUrl, 'Share Link');
+    });
+  }
+
+  const btnShareAgainSidebar = document.getElementById('btnShareAgainSidebar');
+  if (btnShareAgainSidebar) {
+    btnShareAgainSidebar.addEventListener('click', () => {
+      if (!currentClaimDrop) return;
+      openShareModal(currentClaimDrop);
+    });
+  }
+
+  const btnDeleteSidebar = document.getElementById('btnDeleteSidebar');
+  if (btnDeleteSidebar) {
+    btnDeleteSidebar.addEventListener('click', async () => {
+      if (!currentClaimDrop) return;
+      await handleDeleteDrop(currentClaimDrop.code);
+      document.getElementById('claimResultContainer').style.display = 'none';
     });
   }
 

@@ -1,242 +1,636 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='17 8 12 3 7 8'/><line x1='12' y1='3' x2='12' y2='15'/></svg>" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Droply - Instant, secure drag-and-drop file sharing with unique codes, QR codes, and password protection." />
-    <title>Droply — Instant File Dropper & Sharing</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css" />
-    <!-- QRCode Generator Library -->
-    <script src="qrcode.min.js"></script>
-  </head>
-  <body>
-    <div class="app-container">
-      <!-- Hidden File Input -->
-      <input type="file" id="fileInput" style="display: none;" />
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Droply - Drop files. Share instantly.</title>
 
-      <!-- Header Navbar -->
-      <nav class="glass-panel navbar">
-        <a href="#" class="brand-logo" onclick="location.reload(); return false;">
-          <div class="logo-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="17 8 12 3 7 8"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-          </div>
-          <div>
-            <span class="gradient-text">Droply</span>
-            <span style="font-size: 0.75rem; display: block; font-weight: 400; color: var(--text-muted);">
-              Instant File Sharing
-            </span>
-          </div>
-        </a>
+  <!-- Tailwind CSS & Plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
-        <div class="nav-tabs">
-          <button class="nav-tab-btn active" data-tab="upload">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Drop File
-          </button>
-          <button class="nav-tab-btn" data-tab="claim">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Claim Code
-          </button>
-          <button class="nav-tab-btn" data-tab="drops">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-            My Drops
-            <span id="activeCountBadge" style="display:none; background:var(--color-primary); color:#000; font-size:0.75rem; font-weight:700; padding:2px 7px; border-radius:10px;">0</span>
-          </button>
-        </div>
+  <!-- Fonts & Material Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+
+  <!-- Standalone QRCode Engine -->
+  <script src="qrcode.min.js"></script>
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-tertiary-fixed": "#002113",
+            "secondary-fixed-dim": "#4cd7f6",
+            "tertiary-fixed": "#6ffbbe",
+            "on-primary-fixed": "#07006c",
+            "surface-container-highest": "#353437",
+            "on-error": "#690005",
+            "on-surface-variant": "#c7c4d7",
+            "surface-dim": "#131315",
+            "secondary-container": "#03b5d3",
+            "inverse-on-surface": "#313032",
+            "on-secondary-fixed-variant": "#004e5c",
+            "on-secondary-fixed": "#001f26",
+            "primary-container": "#8083ff",
+            "surface-container-lowest": "#0e0e10",
+            "on-secondary-container": "#00424e",
+            "on-tertiary-container": "#000703",
+            "outline-variant": "#464554",
+            "inverse-primary": "#494bd6",
+            "surface-container-low": "#1c1b1d",
+            "tertiary-fixed-dim": "#4edea3",
+            "primary": "#c0c1ff",
+            "error-container": "#93000a",
+            "on-primary": "#1000a9",
+            "tertiary": "#4edea3",
+            "surface-container": "#201f22",
+            "error": "#ffb4ab",
+            "on-background": "#e5e1e4",
+            "outline": "#908fa0",
+            "inverse-surface": "#e5e1e4",
+            "on-secondary": "#003640",
+            "on-primary-container": "#0d0096",
+            "surface": "#131315",
+            "on-error-container": "#ffdad6",
+            "primary-fixed": "#e1e0ff",
+            "secondary": "#4cd7f6",
+            "on-surface": "#e5e1e4",
+            "secondary-fixed": "#acedff",
+            "surface-tint": "#c0c1ff",
+            "surface-variant": "#353437",
+            "on-tertiary": "#003824",
+            "tertiary-container": "#00885d",
+            "on-tertiary-fixed-variant": "#005236",
+            "surface-container-high": "#2a2a2c",
+            "on-primary-fixed-variant": "#2f2ebe",
+            "primary-fixed-dim": "#c0c1ff",
+            "background": "#131315",
+            "surface-bright": "#39393b"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "md": "16px",
+            "xs": "4px",
+            "xl": "40px",
+            "sm": "8px",
+            "gutter": "24px",
+            "unit": "4px",
+            "lg": "24px",
+            "margin-mobile": "16px",
+            "container-max-width": "1280px"
+          },
+          "fontFamily": {
+            "headline-sm": ["Geist"],
+            "label-md": ["JetBrains Mono"],
+            "headline-md": ["Geist"],
+            "body-md": ["Geist"],
+            "headline-lg-mobile": ["Geist"],
+            "headline-lg": ["Geist"],
+            "display-lg": ["Geist"],
+            "label-sm": ["JetBrains Mono"],
+            "body-lg": ["Geist"]
+          },
+          "fontSize": {
+            "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .bg-grid-pattern {
+      background-size: 24px 24px;
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .nav-tab-btn.active {
+      color: #c0c1ff;
+      border-bottom: 2px solid #8083ff;
+    }
+    .dropzone-container.drag-active {
+      border-color: #8083ff !important;
+      background-color: rgba(128, 131, 255, 0.1) !important;
+    }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface antialiased min-h-screen flex flex-col font-body-md text-body-md">
+  <!-- Hidden File Input -->
+  <input type="file" id="fileInput" style="display: none;" />
+
+  <!-- TopAppBar Header -->
+  <header class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-outline-variant/30 shadow-sm">
+    <div class="flex justify-between items-center h-16 px-gutter max-w-container-max-width mx-auto">
+      <!-- Brand -->
+      <a href="#" onclick="location.reload(); return false;" class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-[28px]">cloud_upload</span>
+        <span class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Droply</span>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex gap-6 items-center">
+        <button class="nav-tab-btn text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2 active" data-tab="upload">Upload</button>
+        <button class="nav-tab-btn text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2" data-tab="claim">Retrieve</button>
+        <button class="nav-tab-btn text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2 flex items-center gap-1.5" data-tab="drops">
+          My Drops
+          <span id="activeCountBadge" class="hidden bg-primary text-on-primary text-[11px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+        </button>
       </nav>
 
-      <!-- TAB 1: DROP & SHARE -->
-      <div id="tab-upload" class="tab-content active">
-        <div class="glass-panel" style="padding: 36px 28px;">
-          <div style="text-align: center; margin-bottom: 28px;">
-            <h2 class="gradient-text" style="font-size: 2.2rem; margin-bottom: 8px;">
-              Drop & Share Anything
-            </h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">
-              Drag a file to generate a 6-character code, link & QR code instantly.
-            </p>
-          </div>
+      <!-- Actions -->
+      <div class="flex items-center gap-4">
+        <button aria-label="Dark Mode" class="text-on-surface hover:text-primary transition-colors active:scale-95 transition-transform">
+          <span class="material-symbols-outlined">dark_mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
 
-          <!-- Drag and Drop Box -->
-          <div id="dropzone" class="dropzone-container">
-            <div class="dropzone-icon-pulse">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            </div>
+  <!-- Main Content Canvas -->
+  <main class="flex-grow flex flex-col pt-16">
+    <!-- Hero Section with Stitch Shader Background -->
+    <section class="relative min-h-[80vh] flex items-center justify-center overflow-hidden w-full">
+      <!-- WebGL Shader Background -->
+      <div class="absolute inset-0 w-full h-full -z-20" style="display:block;">
+        <canvas id="shader-canvas-ANIMATION_3" style="display:block;width:100%;height:100%"></canvas>
+        <script>
+        (function() {
+          const canvas = document.getElementById('shader-canvas-ANIMATION_3');
+          function syncSize() {
+            const w = canvas.clientWidth || 1280;
+            const h = canvas.clientHeight || 720;
+            if (canvas.width !== w || canvas.height !== h) {
+              canvas.width = w;
+              canvas.height = h;
+            }
+          }
+          if (typeof ResizeObserver !== 'undefined') {
+            new ResizeObserver(syncSize).observe(canvas);
+          }
+          syncSize();
 
-            <div id="dropPromptInfo">
-              <h3 style="color: var(--text-main); font-size: 1.25rem; margin-bottom: 6px;">
-                Drop your file here, or <span style="color: var(--color-primary); text-decoration: underline;">browse computer</span>
-              </h3>
-              <p style="color: var(--text-muted); font-size: 0.85rem;">
-                Supports documents, images, videos, code, audio, and archives
-              </p>
-            </div>
+          const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+          if (!gl) return;
+          const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+          const fs = `precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
 
-            <div id="fileSelectionInfo" style="display: none;">
-              <span style="display: inline-flex; align-items: center; gap: 6px; color: var(--color-success); font-weight: 600; margin-bottom: 8px; font-size: 1rem;">
-                ✅ File Loaded & Ready
-              </span>
-              <h3 id="selectedFileName" style="color: var(--text-main); font-size: 1.2rem; margin-bottom: 4px; word-break: break-all;"></h3>
-              <p id="selectedMeta" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;"></p>
-              <button id="btnChangeFile" class="btn-secondary" style="padding: 6px 14px; font-size: 0.85rem;">
-                🔄 Change Selected File
-              </button>
-            </div>
-          </div>
+void main() {
+    vec2 uv = v_texCoord;
+    float motion = u_time * 0.2;
+    
+    float color1 = sin(uv.x * 3.0 + motion) * 0.5 + 0.5;
+    float color2 = cos(uv.y * 2.0 - motion) * 0.5 + 0.5;
+    float color3 = sin((uv.x + uv.y) * 4.0 + motion * 0.5) * 0.5 + 0.5;
+    
+    vec3 indigo = vec3(0.388, 0.4, 0.945);
+    vec3 cyan = vec3(0.024, 0.714, 0.831);
+    vec3 deepBg = vec3(0.035, 0.035, 0.043);
+    
+    vec3 finalColor = mix(deepBg, indigo, color1 * 0.15);
+    finalColor = mix(finalColor, cyan, color2 * 0.1);
+    finalColor = mix(finalColor, indigo, color3 * 0.05);
+    
+    float grid = (step(0.99, fract(uv.x * 20.0)) + step(0.99, fract(uv.y * 20.0))) * 0.03;
+    finalColor += grid;
+    
+    gl_FragColor = vec4(finalColor, 1.0);
+}`;
+          function cs(type, src) {
+            const s = gl.createShader(type);
+            gl.shaderSource(s, src);
+            gl.compileShader(s);
+            return s;
+          }
+          const prog = gl.createProgram();
+          gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+          gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+          gl.linkProgram(prog);
+          gl.useProgram(prog);
+          const buf = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+          const pos = gl.getAttribLocation(prog, 'a_position');
+          gl.enableVertexAttribArray(pos);
+          gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+          const uTime = gl.getUniformLocation(prog, 'u_time');
+          const uRes = gl.getUniformLocation(prog, 'u_resolution');
+          const uMouse = gl.getUniformLocation(prog, 'u_mouse');
 
-          <!-- Options -->
-          <div id="optionsSection" style="display: none; margin-top: 28px;">
-            <div class="options-grid">
-              <div class="option-group">
-                <label class="option-label">⏰ Expiration Timer</label>
-                <select id="expirySelect" class="option-select">
-                  <option value="10m">10 Minutes</option>
-                  <option value="1h">1 Hour</option>
-                  <option value="24h" selected>24 Hours (Default)</option>
-                  <option value="1time">Delete after 1 download</option>
-                </select>
-              </div>
+          let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+          window.addEventListener('mousemove', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width && rect.height) {
+              const nx = (event.clientX - rect.left) / rect.width;
+              const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+              mouse.x = nx * canvas.width;
+              mouse.y = ny * canvas.height;
+            }
+          });
 
-              <div class="option-group">
-                <label class="option-label">🔒 Password Protection</label>
-                <div style="display: flex; gap: 8px; align-items: center; padding: 6px 0;">
-                  <input type="checkbox" id="enablePassCheck" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-secondary);" />
-                  <label for="enablePassCheck" style="font-size: 0.9rem; color: var(--text-main); cursor: pointer;">Encrypt file with password</label>
-                </div>
-                <div id="passInputGroup" style="display: none; margin-top: 6px;">
-                  <input type="password" id="passInput" class="option-input" placeholder="Set secret password..." style="width: 100%;" />
-                </div>
-              </div>
-            </div>
-
-            <div style="text-align: center; margin-top: 32px;">
-              <button id="btnCreateDrop" class="btn-primary" style="padding: 14px 36px; font-size: 1.05rem; width: 100%; max-width: 380px;">
-                ✨ Get Share Code & Link
-              </button>
-            </div>
-          </div>
-        </div>
+          function render(t) {
+            if (typeof ResizeObserver === 'undefined') syncSize();
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            if (uTime) gl.uniform1f(uTime, t * 0.001);
+            if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+            if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(render);
+          }
+          render(0);
+        })();
+        </script>
       </div>
 
-      <!-- TAB 2: CLAIM CODE -->
-      <div id="tab-claim" class="tab-content">
-        <div class="glass-panel" style="padding: 36px 28px; max-width: 720px; margin: 0 auto;">
-          <div style="text-align: center; margin-bottom: 28px;">
-            <h2 class="gradient-text" style="font-size: 2.2rem; margin-bottom: 8px;">
-              Access & Claim Shared File
-            </h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">
-              Enter the 6-character drop code to preview and download the file.
+      <!-- Ambient Overlay & Grid -->
+      <div class="absolute inset-0 bg-background/60 backdrop-blur-[2px] -z-10"></div>
+      <div class="absolute inset-0 bg-grid-pattern -z-10 mix-blend-overlay"></div>
+
+      <div class="max-w-container-max-width mx-auto px-gutter relative z-10 w-full flex flex-col items-center text-center py-xl">
+        <h1 class="font-display-lg text-display-lg md:text-[64px] leading-tight font-bold text-on-surface mb-6 max-w-4xl tracking-tight">
+          Drop files. <span class="text-primary">Share instantly.</span>
+        </h1>
+        <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-10">
+          Secure, encrypted, temporary file sharing with QR codes, short codes, and lightning-fast downloads. Engineered for speed and privacy.
+        </p>
+
+        <!-- Quick Switch Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+          <button id="heroBtnUpload" class="bg-primary text-on-primary font-headline-sm text-headline-sm py-4 px-8 rounded-lg shadow-sm hover:bg-primary-fixed transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden group border-t border-white/20">
+            <span class="material-symbols-outlined">upload_file</span>
+            Upload Files
+            <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </button>
+          <button id="heroBtnRetrieve" class="bg-transparent border border-outline-variant text-on-surface font-headline-sm text-headline-sm py-4 px-8 rounded-lg hover:bg-surface-container hover:border-outline transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">download</span>
+            Retrieve Drop
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 1: UPLOAD & DROP -->
+    <div id="tab-upload" class="tab-content active px-gutter py-8 max-w-container-max-width mx-auto w-full">
+      <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-8 shadow-xl">
+        
+        <!-- Drag & Drop Zone -->
+        <div id="dropzone" class="dropzone-container border-2 border-dashed border-outline-variant/40 rounded-xl p-10 text-center bg-surface-container-lowest/50 hover:border-primary/60 transition-all cursor-pointer">
+          <div class="w-16 h-16 rounded-full bg-primary-container/20 border border-primary/30 flex items-center justify-center mx-auto mb-4 text-primary">
+            <span class="material-symbols-outlined text-3xl">cloud_upload</span>
+          </div>
+
+          <div id="dropPromptInfo">
+            <h3 class="text-xl font-bold text-on-surface mb-2">
+              Drop your file here, or <span class="text-primary underline">browse computer</span>
+            </h3>
+            <p class="text-on-surface-variant text-sm max-w-md mx-auto">
+              Supports documents, photos, videos, code files, audio, and archives up to 500MB
             </p>
           </div>
 
-          <div style="margin-bottom: 32px;">
-            <div style="display: flex; gap: 12px; max-width: 460px; margin: 0 auto;">
-              <input type="text" id="claimCodeInput" class="code-input-large" placeholder="e.g. DROP-8492" />
-              <button id="btnLookupCode" class="btn-primary" style="padding: 0 26px; flex-shrink: 0;">
-                🔍 Claim Code
-              </button>
+          <div id="fileSelectionInfo" style="display: none;">
+            <div class="inline-flex items-center gap-2 text-tertiary font-bold mb-2">
+              <span class="material-symbols-outlined">check_circle</span> File Ready for Drop
             </div>
+            <h3 id="selectedFileName" class="text-lg font-semibold text-on-surface mb-1 break-all"></h3>
+            <p id="selectedMeta" class="text-on-surface-variant text-sm mb-4"></p>
+            <button id="btnChangeFile" class="bg-surface-container-high border border-outline-variant text-on-surface px-4 py-2 rounded-lg text-sm font-medium hover:bg-surface-bright transition-colors">
+              🔄 Change Selected File
+            </button>
           </div>
+        </div>
 
-          <!-- Not Found state -->
-          <div id="claimNotFound" style="display: none; text-align: center; padding: 24px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; color: var(--color-danger);">
-            <h4>Drop Not Found or Expired</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
-              Check the code for typos or request a new drop code from the sender.
-            </p>
-          </div>
-
-          <!-- Claim Result Container -->
-          <div id="claimResultContainer" style="display: none; background: rgba(11, 17, 28, 0.85); border: 1px solid var(--border-glass-glow); border-radius: 16px; padding: 24px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-              <span id="claimDisplayCode" class="code-badge" style="font-size: 1.2rem; padding: 6px 14px;"></span>
-              <span id="claimFileInfo" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+        <!-- Options Section -->
+        <div id="optionsSection" style="display: none;" class="mt-8 pt-6 border-t border-outline-variant/20">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Expiration Option -->
+            <div class="flex flex-col gap-2">
+              <label class="text-sm font-semibold text-on-surface-variant flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-base">timer</span>
+                Expiration Lifetime
+              </label>
+              <select id="expirySelect" class="bg-surface-container border border-outline-variant text-on-surface rounded-lg px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                <option value="10m">10 Minutes</option>
+                <option value="1h">1 Hour</option>
+                <option value="24h" selected>24 Hours (Default)</option>
+                <option value="1time">Delete after 1 download</option>
+              </select>
             </div>
 
-            <h3 id="claimFileName" style="color: var(--text-main); font-size: 1.2rem; margin-bottom: 12px; word-break: break-all;"></h3>
-
-            <!-- Unlock form if encrypted -->
-            <div id="passwordUnlockForm" style="display: none; background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.4); border-radius: 12px; padding: 20px; margin-top: 16px;">
-              <h4 style="color: var(--color-secondary); margin-bottom: 8px;">🔒 File is Password Encrypted</h4>
-              <div style="display: flex; gap: 8px;">
-                <input type="password" id="unlockPassInput" class="option-input" placeholder="Enter secret password..." style="width: 100%;" />
-                <button id="btnUnlockFile" class="btn-primary" style="flex-shrink: 0;">🔑 Unlock</button>
+            <!-- Encryption Option -->
+            <div class="flex flex-col gap-2">
+              <label class="text-sm font-semibold text-on-surface-variant flex items-center gap-2">
+                <span class="material-symbols-outlined text-tertiary text-base">lock</span>
+                Client-Side Encryption
+              </label>
+              <div class="flex items-center gap-3 py-2">
+                <input type="checkbox" id="enablePassCheck" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary accent-primary cursor-pointer" />
+                <label for="enablePassCheck" class="text-sm text-on-surface font-medium cursor-pointer">Encrypt file with password</label>
+              </div>
+              <div id="passInputGroup" style="display: none;">
+                <input type="password" id="passInput" class="bg-surface-container border border-outline-variant text-on-surface rounded-lg px-4 py-3 text-sm w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Set secret password..." />
               </div>
             </div>
 
-            <!-- Preview section -->
-            <div id="claimPreviewSection" style="display: none;">
-              <div id="claimPreviewBox" class="preview-box"></div>
-              <div style="text-align: center; margin-top: 20px;">
-                <button id="btnDownloadFile" class="btn-primary" style="padding: 14px 40px; font-size: 1.05rem;">
-                  ⬇️ Download File
+          </div>
+
+          <div class="text-center mt-8">
+            <button id="btnCreateDrop" class="bg-primary text-on-primary font-headline-sm text-base py-3.5 px-10 rounded-lg shadow-lg hover:bg-primary-fixed transition-all duration-200 active:scale-95 inline-flex items-center gap-2">
+              <span class="material-symbols-outlined">auto_awesome</span>
+              Get Share Code & Link
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 2: RETRIEVE / CLAIM -->
+    <div id="tab-claim" class="tab-content px-gutter py-8 max-w-container-max-width mx-auto w-full">
+      <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 md:p-8 shadow-xl">
+        <div class="text-center mb-8">
+          <h2 class="font-headline-lg text-2xl font-bold text-on-surface mb-2">Retrieve Shared File</h2>
+          <p class="text-on-surface-variant text-sm">Enter the 6-character code to preview and download.</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-8">
+          <input type="text" id="claimCodeInput" class="bg-surface-container border-2 border-outline-variant/50 text-primary font-label-md text-2xl tracking-widest text-center uppercase rounded-xl px-4 py-3.5 flex-grow focus:border-primary focus:outline-none" placeholder="DROP-8492" />
+          <button id="btnLookupCode" class="bg-primary text-on-primary font-semibold px-6 py-3.5 rounded-xl hover:bg-primary-fixed transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">search</span> Claim
+          </button>
+        </div>
+
+        <!-- Not Found Alert -->
+        <div id="claimNotFound" style="display: none;" class="bg-error-container/30 border border-error/40 text-error p-4 rounded-xl text-center mb-6">
+          <h4 class="font-bold flex items-center justify-center gap-2 mb-1">
+            <span class="material-symbols-outlined">warning</span> Drop Not Found or Expired
+          </h4>
+          <p class="text-xs text-on-surface-variant">Check the code for typos or request a new code from the sender.</p>
+        </div>
+
+        <!-- Password Unlock Form -->
+        <div id="passwordUnlockForm" style="display: none;" class="bg-tertiary-container/10 border border-tertiary/30 rounded-xl p-6 max-w-lg mx-auto mb-8">
+          <h4 class="text-tertiary font-semibold flex items-center gap-2 mb-3">
+            <span class="material-symbols-outlined">lock</span> Password Protection Required
+          </h4>
+          <div class="flex gap-2">
+            <input type="password" id="unlockPassInput" class="bg-surface-container border border-outline-variant text-on-surface rounded-lg px-4 py-2.5 text-sm flex-grow focus:border-tertiary outline-none" placeholder="Enter secret password..." />
+            <button id="btnUnlockFile" class="bg-tertiary text-on-tertiary font-semibold px-5 py-2.5 rounded-lg hover:bg-tertiary-fixed transition-colors flex items-center gap-1">
+              <span class="material-symbols-outlined">key</span> Unlock
+            </button>
+          </div>
+        </div>
+
+        <!-- 2-COLUMN FILE PREVIEW & SIDEBAR LAYOUT -->
+        <div id="claimResultContainer" style="display: none;" class="flex flex-col lg:flex-row gap-8 items-start">
+          
+          <!-- Left Column: File Preview Area -->
+          <section class="w-full lg:w-2/3 bg-surface-container-low rounded-xl border border-outline-variant/20 overflow-hidden flex flex-col shadow-sm">
+            <!-- Window Control Header -->
+            <div class="h-12 border-b border-outline-variant/20 bg-surface-container-high flex items-center px-4 justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-error/50"></div>
+                <div class="w-3 h-3 rounded-full bg-outline-variant/50"></div>
+                <div class="w-3 h-3 rounded-full bg-secondary-container/50"></div>
+              </div>
+              <span id="previewWindowFilename" class="font-label-md text-xs text-on-surface-variant truncate max-w-[200px] md:max-w-[320px]">File Preview</span>
+              <button aria-label="Expand Preview" class="text-on-surface-variant hover:text-on-surface transition-colors">
+                <span class="material-symbols-outlined text-sm">open_in_full</span>
+              </button>
+            </div>
+
+            <!-- Preview Box Canvas -->
+            <div class="aspect-[4/3] w-full bg-surface-container flex items-center justify-center relative overflow-hidden p-4">
+              <div class="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-surface-container to-surface-container pointer-events-none"></div>
+              <div id="claimPreviewBox" class="w-full h-full flex flex-col items-center justify-center relative z-10 overflow-auto"></div>
+            </div>
+          </section>
+
+          <!-- Right Column: Metadata Sidebar -->
+          <aside class="w-full lg:w-1/3 flex flex-col gap-4">
+            <div class="bg-surface-container-low rounded-xl border border-outline-variant/20 p-6 flex flex-col gap-6 relative overflow-hidden">
+              <div class="absolute -top-12 -right-12 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
+              
+              <!-- File Title & Format Icon -->
+              <div class="flex flex-col gap-1">
+                <div class="flex items-start justify-between gap-2">
+                  <h1 id="sidebarFileName" class="font-headline-sm text-lg text-on-surface break-words leading-tight font-bold"></h1>
+                  <span id="sidebarFileIcon" class="material-symbols-outlined text-secondary text-2xl">description</span>
+                </div>
+                <span id="sidebarDateAdded" class="font-label-md text-xs text-on-surface-variant flex items-center gap-1">
+                  Added Recently
+                </span>
+              </div>
+
+              <!-- Stats Grid -->
+              <div class="grid grid-cols-2 gap-y-4 gap-x-2 font-label-md text-xs">
+                <div class="flex flex-col">
+                  <span class="text-on-surface-variant uppercase tracking-wider text-[10px]">Size</span>
+                  <span id="sidebarFileSize" class="text-on-surface font-medium">--</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-on-surface-variant uppercase tracking-wider text-[10px]">Downloads</span>
+                  <span id="sidebarDownloads" class="text-on-surface font-medium">0</span>
+                </div>
+                <div class="flex flex-col col-span-2">
+                  <span class="text-on-surface-variant uppercase tracking-wider text-[10px]">Expires In</span>
+                  <div class="flex items-center gap-2 mt-1">
+                    <div class="flex-grow h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                      <div id="sidebarExpiryBar" class="h-full bg-secondary-fixed-dim w-full rounded-full transition-all duration-300"></div>
+                    </div>
+                    <span id="sidebarExpiryText" class="text-secondary font-medium whitespace-nowrap">24 hours</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Encryption Badge -->
+              <div id="sidebarEncryptedBadge" class="bg-surface-container p-2.5 rounded-lg border border-outline-variant/20 flex items-center gap-2">
+                <span class="material-symbols-outlined text-tertiary text-sm">lock</span>
+                <span class="font-label-sm text-xs text-on-surface">End-to-End Encrypted (AES-256)</span>
+              </div>
+            </div>
+
+            <!-- Sidebar Actions -->
+            <div class="flex flex-col gap-2">
+              <button id="btnDownloadFile" class="w-full bg-primary text-on-primary font-headline-sm text-base py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-md hover:bg-primary-fixed transition-colors active:scale-[0.98]">
+                <span class="material-symbols-outlined">download</span> Download File
+              </button>
+              
+              <div class="flex gap-2">
+                <button id="btnCopyLinkSidebar" class="flex-1 bg-transparent border border-outline-variant/30 text-primary font-body-md text-xs py-2.5 rounded-lg flex items-center justify-center gap-1 hover:bg-surface-container-high hover:border-outline-variant/50 transition-all">
+                  <span class="material-symbols-outlined text-sm">content_copy</span> Copy Link
+                </button>
+                <button id="btnShareAgainSidebar" class="flex-1 bg-transparent border border-outline-variant/30 text-primary font-body-md text-xs py-2.5 rounded-lg flex items-center justify-center gap-1 hover:bg-surface-container-high hover:border-outline-variant/50 transition-all">
+                  <span class="material-symbols-outlined text-sm">share</span> Share Again
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- TAB 3: MY DROPS -->
-      <div id="tab-drops" class="tab-content">
-        <div class="glass-panel" style="padding: 36px 28px;">
-          <div style="margin-bottom: 24px;">
-            <h2 class="gradient-text" style="font-size: 1.8rem; margin-bottom: 4px;">My Active Drops</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Manage files dropped from this device and track download counts.</p>
-          </div>
-          <div id="dropsTableContainer"></div>
-        </div>
-      </div>
-
-      <!-- SHARE MODAL -->
-      <div id="shareModal" class="modal-overlay hidden">
-        <div class="modal-content">
-          <button id="btnCloseModal" class="modal-close-btn" aria-label="Close modal">&times;</button>
-          
-          <div style="text-align: center; margin-bottom: 20px;">
-            <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(6, 182, 212, 0.15); color: var(--color-primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; font-size: 1.6rem;">
-              🚀
+            <!-- Delete Drop Action -->
+            <div class="border-t border-outline-variant/20 pt-3 mt-1">
+              <button id="btnDeleteSidebar" class="text-on-error hover:text-error transition-colors flex items-center gap-1 font-label-md text-xs w-full justify-center opacity-80 hover:opacity-100 py-1">
+                <span class="material-symbols-outlined text-sm">delete</span> Delete Drop
+              </button>
             </div>
-            <h3 style="font-size: 1.5rem; color: var(--text-main);">Your File is Ready to Share!</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem;">Anyone with this code or link can claim your file.</p>
-          </div>
+          </aside>
 
-          <div style="text-align: center; margin: 20px 0;">
-            <div id="modalCodeBadge" class="code-badge">DROP-0000</div>
-            <div style="margin-top: 12px;">
-              <button id="btnCopyCodeModal" class="btn-primary" style="padding: 10px 22px; font-size: 0.95rem;">📋 Copy Code</button>
-            </div>
-          </div>
-
-          <div style="margin-bottom: 20px;">
-            <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Direct Shareable URL:</label>
-            <div style="display: flex; gap: 8px;">
-              <input type="text" id="modalShareUrl" readonly class="option-input" style="width: 100%; font-size: 0.85rem; font-family: var(--font-mono);" />
-              <button id="btnCopyUrlModal" class="btn-secondary" style="padding: 8px 14px;">📋</button>
-            </div>
-          </div>
-
-          <div style="text-align: center; background: rgba(7, 10, 18, 0.85); padding: 16px; border-radius: 12px; border: 1px solid var(--border-glass);">
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">📱 Scan with mobile camera:</p>
-            <div id="modalQrCanvas" style="display: flex; justify-content: center; margin: 0 auto; border-radius: 8px; overflow: hidden;"></div>
-          </div>
         </div>
-      </div>
 
-      <!-- Toast Container -->
-      <div id="toastContainer" class="toast-container"></div>
+      </div>
     </div>
 
-    <script src="app.js"></script>
-  </body>
+    <!-- TAB 3: MY DROPS -->
+    <div id="tab-drops" class="tab-content px-gutter py-8 max-w-container-max-width mx-auto w-full">
+      <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-8 shadow-xl">
+        <div class="mb-6">
+          <h2 class="font-headline-lg text-2xl font-bold text-on-surface mb-1">My Active Drops</h2>
+          <p class="text-on-surface-variant text-sm">Manage file drops created from this browser.</p>
+        </div>
+        <div id="dropsTableContainer" class="overflow-x-auto"></div>
+      </div>
+    </div>
+
+    <!-- Features / How it works -->
+    <section class="py-24 bg-surface w-full border-t border-outline-variant/10 relative z-20">
+      <div class="max-w-container-max-width mx-auto px-gutter">
+        <div class="text-center mb-16">
+          <h2 class="font-headline-lg text-headline-lg text-on-surface mb-4">How Droply Works</h2>
+          <p class="font-body-md text-body-md text-on-surface-variant">Simple, fast, and aggressively secure.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Card 1 -->
+          <div class="bg-surface-container-low border border-outline-variant/20 rounded-xl p-8 hover:bg-surface-container transition-colors duration-300 group">
+            <div class="w-12 h-12 rounded-lg bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center mb-6 group-hover:border-primary/50 transition-colors">
+              <span class="material-symbols-outlined text-primary text-2xl">cloud_upload</span>
+            </div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-3">1. Upload</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Drag and drop any file format. Our highly optimized network ensures rapid ingress, immediately preparing your data for secure transit.
+            </p>
+          </div>
+          <!-- Card 2 -->
+          <div class="bg-surface-container-low border border-outline-variant/20 rounded-xl p-8 hover:bg-surface-container transition-colors duration-300 group relative overflow-hidden">
+            <!-- Subtle blur orb behind icon -->
+            <div class="absolute top-8 left-8 w-16 h-16 bg-tertiary/10 blur-xl rounded-full"></div>
+            <div class="w-12 h-12 rounded-lg bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center mb-6 relative z-10 group-hover:border-tertiary/50 transition-colors">
+              <span class="material-symbols-outlined text-tertiary text-2xl">lock</span>
+            </div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-3 relative z-10">2. Secure</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed relative z-10">
+              Files are encrypted client-side with AES-256. We never hold the keys. Drops are temporary and self-destruct automatically.
+            </p>
+          </div>
+          <!-- Card 3 -->
+          <div class="bg-surface-container-low border border-outline-variant/20 rounded-xl p-8 hover:bg-surface-container transition-colors duration-300 group">
+            <div class="w-12 h-12 rounded-lg bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center mb-6 group-hover:border-secondary/50 transition-colors">
+              <span class="material-symbols-outlined text-secondary text-2xl">qr_code</span>
+            </div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-3">3. Share</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Generate an instant QR code, short link, or access pin. The recipient inputs the code and retrieves the payload effortlessly.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Share Modal Overlay -->
+  <div id="shareModal" class="modal-overlay fixed inset-0 bg-background/80 backdrop-blur-md z-[9999] flex items-center justify-center p-4 hidden">
+    <div class="bg-surface-container-high border border-outline-variant/40 rounded-2xl p-6 md:p-8 max-w-md w-full shadow-2xl relative">
+      <button id="btnCloseModal" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant/30 text-on-surface-variant hover:text-on-surface hover:bg-error-container/40 flex items-center justify-center transition-colors">
+        <span class="material-symbols-outlined text-lg">close</span>
+      </button>
+
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-full bg-primary-container/20 text-primary flex items-center justify-center mx-auto mb-3">
+          <span class="material-symbols-outlined text-2xl">share</span>
+        </div>
+        <h3 class="text-xl font-bold text-on-surface">Your File is Ready to Share!</h3>
+        <p class="text-xs text-on-surface-variant mt-1">Anyone with this code or link can claim your file.</p>
+      </div>
+
+      <!-- Code Badge -->
+      <div class="text-center mb-6">
+        <div id="modalCodeBadge" class="font-label-md text-2xl font-extrabold text-primary bg-primary-container/20 border border-primary/40 px-6 py-2.5 rounded-xl inline-block tracking-widest">
+          DROP-0000
+        </div>
+        <div class="mt-3">
+          <button id="btnCopyCodeModal" class="bg-primary text-on-primary text-sm font-semibold px-4 py-2 rounded-lg hover:bg-primary-fixed transition-colors inline-flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-base">content_copy</span> Copy Code
+          </button>
+        </div>
+      </div>
+
+      <!-- Share URL -->
+      <div class="mb-6">
+        <label class="text-xs text-on-surface-variant block mb-1">Direct Share URL:</label>
+        <div class="flex gap-2">
+          <input type="text" id="modalShareUrl" readonly class="bg-surface-container border border-outline-variant text-on-surface text-xs font-label-md rounded-lg px-3 py-2 flex-grow focus:outline-none" />
+          <button id="btnCopyUrlModal" class="bg-surface-container-highest border border-outline-variant text-on-surface px-3 py-2 rounded-lg hover:bg-surface-bright transition-colors">
+            <span class="material-symbols-outlined text-base">content_copy</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- QR Code Box -->
+      <div class="text-center bg-surface-container-lowest/80 border border-outline-variant/30 rounded-xl p-4">
+        <p class="text-xs text-on-surface-variant mb-3 flex items-center justify-center gap-1">
+          <span class="material-symbols-outlined text-base">qr_code_scanner</span> Scan with mobile camera:
+        </p>
+        <div id="modalQrCanvas" class="flex justify-center items-center mx-auto rounded-lg overflow-hidden min-h-[170px]"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container fixed bottom-6 right-6 z-[99999] flex flex-col gap-2"></div>
+
+  <!-- Footer -->
+  <footer class="bg-background dark:bg-surface-dim w-full py-lg border-t border-outline-variant/10 relative z-20">
+    <div class="flex flex-col md:flex-row justify-between items-center px-gutter max-w-container-max-width mx-auto">
+      <div class="flex items-center gap-2 mb-4 md:mb-0">
+        <span class="material-symbols-outlined text-outline text-sm">cloud</span>
+        <span class="font-label-md text-label-md font-bold text-outline">© 2026 Droply Inc.</span>
+      </div>
+      <nav class="flex gap-6">
+        <a class="font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors opacity-80 hover:opacity-100" href="#">Privacy</a>
+        <a class="font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors opacity-80 hover:opacity-100" href="#">Terms</a>
+        <a class="font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors opacity-80 hover:opacity-100" href="#">Status</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Application Engine -->
+  <script src="app.js"></script>
+</body>
 </html>
