@@ -11,13 +11,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css" />
+    <!-- QRCode Generator Library -->
+    <script src="qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
   </head>
   <body>
-    <div className="app-container" style="max-width: 1000px; margin: 0 auto; padding: 24px 20px 60px;">
+    <div class="app-container">
+      <!-- Hidden File Input -->
+      <input type="file" id="fileInput" style="display: none;" />
+
       <!-- Header Navbar -->
-      <nav className="glass-panel navbar">
-        <a href="#" className="brand-logo" onclick="location.reload(); return false;">
-          <div className="logo-icon">
+      <nav class="glass-panel navbar">
+        <a href="#" class="brand-logo" onclick="location.reload(); return false;">
+          <div class="logo-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="17 8 12 3 7 8"/>
@@ -25,23 +31,23 @@
             </svg>
           </div>
           <div>
-            <span className="gradient-text">Droply</span>
+            <span class="gradient-text">Droply</span>
             <span style="font-size: 0.75rem; display: block; font-weight: 400; color: var(--text-muted);">
-              Instant File Dropper
+              Instant File Sharing
             </span>
           </div>
         </a>
 
-        <div className="nav-tabs">
-          <button className="nav-tab-btn active" data-tab="upload">
+        <div class="nav-tabs">
+          <button class="nav-tab-btn active" data-tab="upload">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             Drop File
           </button>
-          <button className="nav-tab-btn" data-tab="claim">
+          <button class="nav-tab-btn" data-tab="claim">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Claim Code
           </button>
-          <button className="nav-tab-btn" data-tab="drops">
+          <button class="nav-tab-btn" data-tab="drops">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
             My Drops
             <span id="activeCountBadge" style="display:none; background:var(--color-primary); color:#000; font-size:0.75rem; font-weight:700; padding:2px 7px; border-radius:10px;">0</span>
@@ -50,10 +56,10 @@
       </nav>
 
       <!-- TAB 1: DROP & SHARE -->
-      <div id="tab-upload" className="tab-content active">
-        <div className="glass-panel" style="padding: 36px 28px;">
+      <div id="tab-upload" class="tab-content active">
+        <div class="glass-panel" style="padding: 36px 28px;">
           <div style="text-align: center; margin-bottom: 28px;">
-            <h2 className="gradient-text" style="font-size: 2rem; margin-bottom: 8px;">
+            <h2 class="gradient-text" style="font-size: 2.2rem; margin-bottom: 8px;">
               Drop & Share Anything
             </h2>
             <p style="color: var(--text-muted); font-size: 0.95rem;">
@@ -62,15 +68,14 @@
           </div>
 
           <!-- Drag and Drop Box -->
-          <div id="dropzone" className="dropzone-container">
-            <input type="file" id="fileInput" style="display: none;" />
-            <div className="dropzone-icon-pulse">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div id="dropzone" class="dropzone-container">
+            <div class="dropzone-icon-pulse">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             </div>
 
             <div id="dropPromptInfo">
-              <h3 style="color: var(--text-main); font-size: 1.2rem; margin-bottom: 6px;">
-                Drop your file here, or <span style="color: var(--color-primary);">browse</span>
+              <h3 style="color: var(--text-main); font-size: 1.25rem; margin-bottom: 6px;">
+                Drop your file here, or <span style="color: var(--color-primary); text-decoration: underline;">browse computer</span>
               </h3>
               <p style="color: var(--text-muted); font-size: 0.85rem;">
                 Supports documents, images, videos, code, audio, and archives
@@ -78,20 +83,23 @@
             </div>
 
             <div id="fileSelectionInfo" style="display: none;">
-              <span style="display: inline-flex; align-items: center; gap: 6px; color: var(--color-success); font-weight: 600; margin-bottom: 6px;">
-                ✅ File Ready
+              <span style="display: inline-flex; align-items: center; gap: 6px; color: var(--color-success); font-weight: 600; margin-bottom: 8px; font-size: 1rem;">
+                ✅ File Loaded & Ready
               </span>
-              <h3 id="selectedFileName" style="color: var(--text-main); font-size: 1.1rem; margin-bottom: 4px;"></h3>
-              <p id="selectedMeta" style="color: var(--text-muted); font-size: 0.85rem;"></p>
+              <h3 id="selectedFileName" style="color: var(--text-main); font-size: 1.2rem; margin-bottom: 4px; word-break: break-all;"></h3>
+              <p id="selectedMeta" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;"></p>
+              <button id="btnChangeFile" class="btn-secondary" style="padding: 6px 14px; font-size: 0.85rem;">
+                🔄 Change Selected File
+              </button>
             </div>
           </div>
 
           <!-- Options -->
           <div id="optionsSection" style="display: none; margin-top: 28px;">
-            <div className="options-grid">
-              <div className="option-group">
-                <label className="option-label">⏰ Expiration Timer</label>
-                <select id="expirySelect" className="option-select">
+            <div class="options-grid">
+              <div class="option-group">
+                <label class="option-label">⏰ Expiration Timer</label>
+                <select id="expirySelect" class="option-select">
                   <option value="10m">10 Minutes</option>
                   <option value="1h">1 Hour</option>
                   <option value="24h" selected>24 Hours (Default)</option>
@@ -99,20 +107,20 @@
                 </select>
               </div>
 
-              <div className="option-group">
-                <label className="option-label">🔒 Password Protection</label>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                  <input type="checkbox" id="enablePassCheck" style="width: 18px; height: 18px; cursor: pointer;" />
-                  <label for="enablePassCheck" style="font-size: 0.9rem; color: var(--text-main); cursor: pointer;">Encrypt with password</label>
+              <div class="option-group">
+                <label class="option-label">🔒 Password Protection</label>
+                <div style="display: flex; gap: 8px; align-items: center; padding: 6px 0;">
+                  <input type="checkbox" id="enablePassCheck" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-secondary);" />
+                  <label for="enablePassCheck" style="font-size: 0.9rem; color: var(--text-main); cursor: pointer;">Encrypt file with password</label>
                 </div>
                 <div id="passInputGroup" style="display: none; margin-top: 6px;">
-                  <input type="password" id="passInput" className="option-input" placeholder="Set secret password..." style="width: 100%;" />
+                  <input type="password" id="passInput" class="option-input" placeholder="Set secret password..." style="width: 100%;" />
                 </div>
               </div>
             </div>
 
-            <div style="text-align: center; margin-top: 28px;">
-              <button id="btnCreateDrop" className="btn-primary" style="padding: 14px 36px; font-size: 1.05rem; width: 100%; max-width: 360px;">
+            <div style="text-align: center; margin-top: 32px;">
+              <button id="btnCreateDrop" class="btn-primary" style="padding: 14px 36px; font-size: 1.05rem; width: 100%; max-width: 380px;">
                 ✨ Get Share Code & Link
               </button>
             </div>
@@ -121,10 +129,10 @@
       </div>
 
       <!-- TAB 2: CLAIM CODE -->
-      <div id="tab-claim" className="tab-content">
-        <div className="glass-panel" style="padding: 36px 28px; max-width: 720px; margin: 0 auto;">
+      <div id="tab-claim" class="tab-content">
+        <div class="glass-panel" style="padding: 36px 28px; max-width: 720px; margin: 0 auto;">
           <div style="text-align: center; margin-bottom: 28px;">
-            <h2 className="gradient-text" style="font-size: 2rem; margin-bottom: 8px;">
+            <h2 class="gradient-text" style="font-size: 2.2rem; margin-bottom: 8px;">
               Access & Claim Shared File
             </h2>
             <p style="color: var(--text-muted); font-size: 0.95rem;">
@@ -133,10 +141,10 @@
           </div>
 
           <div style="margin-bottom: 32px;">
-            <div style="display: flex; gap: 12px; max-width: 440px; margin: 0 auto;">
-              <input type="text" id="claimCodeInput" className="code-input-large" placeholder="e.g. DROP-8492" />
-              <button id="btnLookupCode" className="btn-primary" style="padding: 0 24px; flex-shrink: 0;">
-                🔍 Claim
+            <div style="display: flex; gap: 12px; max-width: 460px; margin: 0 auto;">
+              <input type="text" id="claimCodeInput" class="code-input-large" placeholder="e.g. DROP-8492" />
+              <button id="btnLookupCode" class="btn-primary" style="padding: 0 26px; flex-shrink: 0;">
+                🔍 Claim Code
               </button>
             </div>
           </div>
@@ -150,28 +158,28 @@
           </div>
 
           <!-- Claim Result Container -->
-          <div id="claimResultContainer" style="display: none; background: rgba(13, 20, 33, 0.8); border: 1px solid var(--border-glass-glow); border-radius: 16px; padding: 24px;">
+          <div id="claimResultContainer" style="display: none; background: rgba(11, 17, 28, 0.85); border: 1px solid var(--border-glass-glow); border-radius: 16px; padding: 24px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-              <span id="claimDisplayCode" className="code-badge" style="font-size: 1.2rem; padding: 6px 14px;"></span>
+              <span id="claimDisplayCode" class="code-badge" style="font-size: 1.2rem; padding: 6px 14px;"></span>
               <span id="claimFileInfo" style="font-size: 0.85rem; color: var(--text-muted);"></span>
             </div>
 
-            <h3 id="claimFileName" style="color: var(--text-main); font-size: 1.2rem; margin-bottom: 12px;"></h3>
+            <h3 id="claimFileName" style="color: var(--text-main); font-size: 1.2rem; margin-bottom: 12px; word-break: break-all;"></h3>
 
             <!-- Unlock form if encrypted -->
-            <div id="passwordUnlockForm" style="display: none; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 20px; margin-top: 16px;">
+            <div id="passwordUnlockForm" style="display: none; background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.4); border-radius: 12px; padding: 20px; margin-top: 16px;">
               <h4 style="color: var(--color-secondary); margin-bottom: 8px;">🔒 File is Password Encrypted</h4>
               <div style="display: flex; gap: 8px;">
-                <input type="password" id="unlockPassInput" className="option-input" placeholder="Enter secret password..." style="width: 100%;" />
-                <button id="btnUnlockFile" className="btn-primary" style="flex-shrink: 0;">🔑 Unlock</button>
+                <input type="password" id="unlockPassInput" class="option-input" placeholder="Enter secret password..." style="width: 100%;" />
+                <button id="btnUnlockFile" class="btn-primary" style="flex-shrink: 0;">🔑 Unlock</button>
               </div>
             </div>
 
             <!-- Preview section -->
             <div id="claimPreviewSection" style="display: none;">
-              <div id="claimPreviewBox" className="preview-box"></div>
+              <div id="claimPreviewBox" class="preview-box"></div>
               <div style="text-align: center; margin-top: 20px;">
-                <button id="btnDownloadFile" className="btn-primary" style="padding: 14px 40px; font-size: 1.05rem;">
+                <button id="btnDownloadFile" class="btn-primary" style="padding: 14px 40px; font-size: 1.05rem;">
                   ⬇️ Download File
                 </button>
               </div>
@@ -181,10 +189,10 @@
       </div>
 
       <!-- TAB 3: MY DROPS -->
-      <div id="tab-drops" className="tab-content">
-        <div className="glass-panel" style="padding: 36px 28px;">
+      <div id="tab-drops" class="tab-content">
+        <div class="glass-panel" style="padding: 36px 28px;">
           <div style="margin-bottom: 24px;">
-            <h2 className="gradient-text" style="font-size: 1.8rem; margin-bottom: 4px;">My Active Drops</h2>
+            <h2 class="gradient-text" style="font-size: 1.8rem; margin-bottom: 4px;">My Active Drops</h2>
             <p style="color: var(--text-muted); font-size: 0.9rem;">Manage files dropped from this device and track download counts.</p>
           </div>
           <div id="dropsTableContainer"></div>
@@ -192,12 +200,12 @@
       </div>
 
       <!-- SHARE MODAL -->
-      <div id="shareModal" className="modal-overlay hidden">
-        <div className="modal-content">
-          <button id="btnCloseModal" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+      <div id="shareModal" class="modal-overlay hidden">
+        <div class="modal-content">
+          <button id="btnCloseModal" class="modal-close-btn" aria-label="Close modal">&times;</button>
           
           <div style="text-align: center; margin-bottom: 20px;">
-            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(6, 182, 212, 0.15); color: var(--color-primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; font-size: 1.5rem;">
+            <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(6, 182, 212, 0.15); color: var(--color-primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; font-size: 1.6rem;">
               🚀
             </div>
             <h3 style="font-size: 1.5rem; color: var(--text-main);">Your File is Ready to Share!</h3>
@@ -205,21 +213,21 @@
           </div>
 
           <div style="text-align: center; margin: 20px 0;">
-            <div id="modalCodeBadge" className="code-badge">DROP-0000</div>
-            <div style="margin-top: 10px;">
-              <button id="btnCopyCodeModal" className="btn-primary" style="padding: 8px 18px; font-size: 0.9rem;">📋 Copy Code</button>
+            <div id="modalCodeBadge" class="code-badge">DROP-0000</div>
+            <div style="margin-top: 12px;">
+              <button id="btnCopyCodeModal" class="btn-primary" style="padding: 10px 22px; font-size: 0.95rem;">📋 Copy Code</button>
             </div>
           </div>
 
           <div style="margin-bottom: 20px;">
             <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Direct Shareable URL:</label>
             <div style="display: flex; gap: 8px;">
-              <input type="text" id="modalShareUrl" readonly className="option-input" style="width: 100%; font-size: 0.85rem; font-family: var(--font-mono);" />
-              <button id="btnCopyUrlModal" className="btn-secondary" style="padding: 8px 14px;">📋</button>
+              <input type="text" id="modalShareUrl" readonly class="option-input" style="width: 100%; font-size: 0.85rem; font-family: var(--font-mono);" />
+              <button id="btnCopyUrlModal" class="btn-secondary" style="padding: 8px 14px;">📋</button>
             </div>
           </div>
 
-          <div style="text-align: center; background: rgba(9, 13, 22, 0.8); padding: 16px; border-radius: 12px; border: 1px solid var(--border-glass);">
+          <div style="text-align: center; background: rgba(7, 10, 18, 0.85); padding: 16px; border-radius: 12px; border: 1px solid var(--border-glass);">
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">📱 Scan with mobile camera:</p>
             <canvas id="modalQrCanvas" style="border-radius: 8px; margin: 0 auto; display: block;"></canvas>
           </div>
@@ -227,7 +235,7 @@
       </div>
 
       <!-- Toast Container -->
-      <div id="toastContainer" className="toast-container"></div>
+      <div id="toastContainer" class="toast-container"></div>
     </div>
 
     <script src="app.js"></script>

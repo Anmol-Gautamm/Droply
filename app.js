@@ -235,6 +235,7 @@ async function deleteDrop(code) {
 
 function showToast(message, type = 'info') {
   const container = document.getElementById('toastContainer');
+  if (!container) return;
   const toast = document.createElement('div');
   toast.className = 'toast-item';
   
@@ -251,7 +252,7 @@ function showToast(message, type = 'info') {
 }
 
 function formatBytes(bytes) {
-  if (bytes === 0) return '0 Bytes';
+  if (!bytes || bytes === 0) return '0 Bytes';
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -288,13 +289,14 @@ async function updateActiveBadge() {
 // Render My Drops Table
 async function renderMyDrops() {
   const container = document.getElementById('dropsTableContainer');
+  if (!container) return;
   const drops = await getAllDrops();
 
   if (drops.length === 0) {
     container.innerHTML = `
       <div style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
-        <p style="font-size: 1.1rem; font-weight: 500;">No Active Drops Found</p>
-        <p style="font-size: 0.85rem; margin-top: 4px;">Files you drop will appear here for management.</p>
+        <p style="font-size: 1.1rem; font-weight: 600;">No Active Drops Found</p>
+        <p style="font-size: 0.85rem; margin-top: 4px;">Files you drop will appear here for easy management.</p>
       </div>
     `;
     return;
@@ -337,9 +339,9 @@ async function renderMyDrops() {
         <td><strong>${drop.downloadsCount || 0}</strong></td>
         <td>
           <div style="display: flex; gap: 6px;">
-            <button className="btn-secondary" onclick="copyText('${drop.code}', 'Code')" class="btn-secondary" style="padding: 6px 10px;">Copy Code</button>
-            <button onclick="copyText('${shareUrl}', 'Link')" class="btn-secondary" style="padding: 6px 10px;">Copy Link</button>
-            <button onclick="handleDeleteDrop('${drop.code}')" class="btn-danger">Delete</button>
+            <button onclick="copyText('${drop.code}', 'Code')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">📋 Code</button>
+            <button onclick="copyText('${shareUrl}', 'Link')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">🔗 Link</button>
+            <button onclick="handleDeleteDrop('${drop.code}')" class="btn-danger" style="padding: 6px 10px; font-size: 0.8rem;">🗑️ Delete</button>
           </div>
         </td>
       </tr>
@@ -364,7 +366,10 @@ window.handleDeleteDrop = async function(code) {
 
 // Handle Drop creation
 async function processCreateDrop() {
-  if (!selectedFile) return;
+  if (!selectedFile) {
+    showToast('Please select or drop a file first!', 'error');
+    return;
+  }
 
   const expiryType = document.getElementById('expirySelect').value;
   const enablePass = document.getElementById('enablePassCheck').checked;
@@ -388,7 +393,7 @@ async function processCreateDrop() {
       isEncrypted
     });
 
-    showToast('File dropped successfully! Code generated.', 'success');
+    showToast('File dropped successfully! Share code generated.', 'success');
     openShareModal(drop);
     updateActiveBadge();
 
@@ -399,6 +404,7 @@ async function processCreateDrop() {
     document.getElementById('optionsSection').style.display = 'none';
     document.getElementById('passInput').value = '';
     document.getElementById('enablePassCheck').checked = false;
+    document.getElementById('passInputGroup').style.display = 'none';
   } catch (err) {
     console.error(err);
     showToast('Failed to drop file: ' + err.message, 'error');
@@ -408,48 +414,50 @@ async function processCreateDrop() {
 // Modal handling
 function openShareModal(drop) {
   const modal = document.getElementById('shareModal');
+  if (!modal) return;
   document.getElementById('modalCodeBadge').textContent = drop.code;
   const shareUrl = `${window.location.origin}${window.location.pathname}?code=${drop.code}`;
   document.getElementById('modalShareUrl').value = shareUrl;
 
-  // Simple Canvas QR rendering
-  renderSimpleQR('modalQrCanvas', shareUrl);
-
+  // Show modal first so layout dimensions are active
   modal.classList.remove('hidden');
+
+  // Render QR Code immediately
+  renderSimpleQR('modalQrCanvas', shareUrl);
 }
 
 function renderSimpleQR(canvasId, text) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const size = 160;
-  canvas.width = size;
-  canvas.height = size;
 
-  ctx.fillStyle = '#090d16';
-  ctx.fillRect(0, 0, size, size);
-
-  // Generate stylized matrix patterns
-  ctx.fillStyle = '#06b6d4';
-  const grid = 12;
-  const cellSize = size / grid;
-
-  for (let r = 0; r < grid; r++) {
-    for (let c = 0; c < grid; c++) {
-      // Corner positioning squares
-      if ((r < 3 && c < 3) || (r < 3 && c >= grid - 3) || (r >= grid - 3 && c < 3)) {
-        ctx.fillRect(c * cellSize + 2, r * cellSize + 2, cellSize - 4, cellSize - 4);
-      } else if ((r + c + text.length) % 2 === 0) {
-        ctx.fillRect(c * cellSize + 3, r * cellSize + 3, cellSize - 6, cellSize - 6);
-      }
+  const options = {
+    width: 180,
+    margin: 2,
+    color: {
+      dark: '#06b6d4',
+      light: '#070a12'
     }
+  };
+
+  // Always use drawRealQRCode if available for 100% reliable local rendering
+  if (typeof window.drawRealQRCode === 'function') {
+    window.drawRealQRCode(canvas, text, options);
+    return;
+  }
+
+  // Fallback to CDN QRCode library if loaded
+  if (window.QRCode && typeof window.QRCode.toCanvas === 'function') {
+    window.QRCode.toCanvas(canvas, text, options);
   }
 }
 
 // Claim File Lookup
 async function lookupClaimCode(codeToSearch) {
   const code = (codeToSearch || document.getElementById('claimCodeInput').value).trim().toUpperCase();
-  if (!code) return;
+  if (!code) {
+    showToast('Please enter a 6-character code!', 'error');
+    return;
+  }
 
   const resultContainer = document.getElementById('claimResultContainer');
   const notFoundBox = document.getElementById('claimNotFound');
@@ -484,6 +492,7 @@ async function lookupClaimCode(codeToSearch) {
 
 function renderFilePreview(containerId, blob, fileName, fileType) {
   const container = document.getElementById(containerId);
+  if (!container) return;
   container.innerHTML = '';
 
   const url = URL.createObjectURL(blob);
@@ -523,35 +532,52 @@ function renderFilePreview(containerId, blob, fileName, fileType) {
 document.addEventListener('DOMContentLoaded', () => {
   // Navigation Tabs
   document.querySelectorAll('.nav-tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchTab(btn.dataset.tab);
+    });
   });
 
-  // Drag & Drop
+  // Drag & Drop File Handling
   const dropzone = document.getElementById('dropzone');
   const fileInput = document.getElementById('fileInput');
 
-  dropzone.addEventListener('click', () => fileInput.click());
+  if (dropzone && fileInput) {
+    dropzone.addEventListener('click', (e) => {
+      if (e.target.id !== 'btnChangeFile') {
+        fileInput.click();
+      }
+    });
 
-  dropzone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropzone.classList.add('drag-active');
-  });
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('drag-active');
+    });
 
-  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-active'));
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-active'));
 
-  dropzone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropzone.classList.remove('drag-active');
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileSelected(e.dataTransfer.files[0]);
-    }
-  });
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('drag-active');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFileSelected(e.dataTransfer.files[0]);
+      }
+    });
 
-  fileInput.addEventListener('change', (e) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFileSelected(e.target.files[0]);
-    }
-  });
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleFileSelected(e.target.files[0]);
+      }
+    });
+  }
+
+  const changeBtn = document.getElementById('btnChangeFile');
+  if (changeBtn) {
+    changeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.click();
+    });
+  }
 
   function handleFileSelected(file) {
     selectedFile = file;
@@ -563,72 +589,100 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Password Checkbox
-  document.getElementById('enablePassCheck').addEventListener('change', (e) => {
-    document.getElementById('passInputGroup').style.display = e.target.checked ? 'block' : 'none';
-  });
+  const passCheck = document.getElementById('enablePassCheck');
+  if (passCheck) {
+    passCheck.addEventListener('change', (e) => {
+      document.getElementById('passInputGroup').style.display = e.target.checked ? 'block' : 'none';
+    });
+  }
 
   // Create Drop Button
-  document.getElementById('btnCreateDrop').addEventListener('click', processCreateDrop);
+  const btnCreateDrop = document.getElementById('btnCreateDrop');
+  if (btnCreateDrop) {
+    btnCreateDrop.addEventListener('click', processCreateDrop);
+  }
 
   // Claim Code Search Button
-  document.getElementById('btnLookupCode').addEventListener('click', () => lookupClaimCode());
-  document.getElementById('claimCodeInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') lookupClaimCode();
-  });
+  const btnLookupCode = document.getElementById('btnLookupCode');
+  if (btnLookupCode) {
+    btnLookupCode.addEventListener('click', () => lookupClaimCode());
+  }
+
+  const claimCodeInput = document.getElementById('claimCodeInput');
+  if (claimCodeInput) {
+    claimCodeInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') lookupClaimCode();
+    });
+  }
 
   // Password Unlock Submit
-  document.getElementById('btnUnlockFile').addEventListener('click', async () => {
-    const password = document.getElementById('unlockPassInput').value;
-    if (!password.trim() || !currentClaimDrop) return;
+  const btnUnlockFile = document.getElementById('btnUnlockFile');
+  if (btnUnlockFile) {
+    btnUnlockFile.addEventListener('click', async () => {
+      const password = document.getElementById('unlockPassInput').value;
+      if (!password.trim() || !currentClaimDrop) return;
 
-    try {
-      const blob = await decryptFile(currentClaimDrop.fileBlob, password.trim(), currentClaimDrop.fileType);
-      currentDecryptedBlob = blob;
-      showToast('File unlocked!', 'success');
-      document.getElementById('passwordUnlockForm').style.display = 'none';
-      document.getElementById('claimPreviewSection').style.display = 'block';
-      renderFilePreview('claimPreviewBox', blob, currentClaimDrop.fileName, currentClaimDrop.fileType);
-    } catch (err) {
-      showToast('Incorrect password. Try again.', 'error');
-    }
-  });
+      try {
+        const blob = await decryptFile(currentClaimDrop.fileBlob, password.trim(), currentClaimDrop.fileType);
+        currentDecryptedBlob = blob;
+        showToast('File unlocked!', 'success');
+        document.getElementById('passwordUnlockForm').style.display = 'none';
+        document.getElementById('claimPreviewSection').style.display = 'block';
+        renderFilePreview('claimPreviewBox', blob, currentClaimDrop.fileName, currentClaimDrop.fileType);
+      } catch (err) {
+        showToast('Incorrect password. Try again.', 'error');
+      }
+    });
+  }
 
   // Download Trigger
-  document.getElementById('btnDownloadFile').addEventListener('click', async () => {
-    if (!currentDecryptedBlob || !currentClaimDrop) return;
+  const btnDownloadFile = document.getElementById('btnDownloadFile');
+  if (btnDownloadFile) {
+    btnDownloadFile.addEventListener('click', async () => {
+      if (!currentDecryptedBlob || !currentClaimDrop) return;
 
-    const url = URL.createObjectURL(currentDecryptedBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = currentClaimDrop.fileName || 'download';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+      const url = URL.createObjectURL(currentDecryptedBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = currentClaimDrop.fileName || 'download';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-    const updated = await incrementDownload(currentClaimDrop.code);
-    if (updated?.deletedAfterDownload) {
-      showToast('File downloaded! Note: 1-time drop removed.', 'info');
-    } else {
-      showToast('Download started!', 'success');
-    }
-    updateActiveBadge();
-  });
+      const updated = await incrementDownload(currentClaimDrop.code);
+      if (updated?.deletedAfterDownload) {
+        showToast('File downloaded! Note: 1-time drop removed.', 'info');
+      } else {
+        showToast('Download started!', 'success');
+      }
+      updateActiveBadge();
+    });
+  }
 
   // Copy Buttons in Modal
-  document.getElementById('btnCopyCodeModal').addEventListener('click', () => {
-    const code = document.getElementById('modalCodeBadge').textContent;
-    copyText(code, 'Share Code');
-  });
+  const btnCopyCodeModal = document.getElementById('btnCopyCodeModal');
+  if (btnCopyCodeModal) {
+    btnCopyCodeModal.addEventListener('click', () => {
+      const code = document.getElementById('modalCodeBadge').textContent;
+      copyText(code, 'Share Code');
+    });
+  }
 
-  document.getElementById('btnCopyUrlModal').addEventListener('click', () => {
-    const url = document.getElementById('modalShareUrl').value;
-    copyText(url, 'Share Link');
-  });
+  const btnCopyUrlModal = document.getElementById('btnCopyUrlModal');
+  if (btnCopyUrlModal) {
+    btnCopyUrlModal.addEventListener('click', () => {
+      const url = document.getElementById('modalShareUrl').value;
+      copyText(url, 'Share Link');
+    });
+  }
 
-  document.getElementById('btnCloseModal').addEventListener('click', () => {
-    document.getElementById('shareModal').classList.add('hidden');
-  });
+  const btnCloseModal = document.getElementById('btnCloseModal');
+  if (btnCloseModal) {
+    btnCloseModal.addEventListener('click', () => {
+      document.getElementById('shareModal').classList.add('hidden');
+    });
+  }
 
   // Check URL query parameter `?code=DROP-XXXX`
   const params = new URLSearchParams(window.location.search);
