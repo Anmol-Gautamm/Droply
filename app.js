@@ -296,63 +296,139 @@ async function updateActiveBadge() {
   }
 }
 
-// Render My Drops Table
+// Dashboard Filter State
+let currentDashboardFilter = 'all';
+let dashboardSearchQuery = '';
+
+// Render My Drops Table & Stats Dashboard
 async function renderMyDrops() {
   const container = document.getElementById('dropsTableContainer');
   if (!container) return;
-  const drops = await getAllDrops();
+  const allDrops = await getAllDrops();
 
-  if (drops.length === 0) {
+  // Update Stats Cards
+  const activeCountEl = document.getElementById('dashboardStatActive');
+  const downloadsCountEl = document.getElementById('dashboardStatDownloads');
+  const encryptedCountEl = document.getElementById('dashboardStatEncrypted');
+  const storageCountEl = document.getElementById('dashboardStatStorage');
+
+  if (activeCountEl) activeCountEl.textContent = allDrops.length;
+  if (downloadsCountEl) {
+    const totalDLs = allDrops.reduce((acc, d) => acc + (d.downloadsCount || 0), 0);
+    downloadsCountEl.textContent = totalDLs;
+  }
+  if (encryptedCountEl) {
+    const totalEnc = allDrops.filter(d => d.isEncrypted).length;
+    encryptedCountEl.textContent = totalEnc;
+  }
+  if (storageCountEl) {
+    const totalBytes = allDrops.reduce((acc, d) => acc + (d.fileSize || 0), 0);
+    storageCountEl.innerHTML = `${formatBytes(totalBytes)}`;
+  }
+
+  // Filter Drops
+  let filteredDrops = allDrops.filter(drop => {
+    if (dashboardSearchQuery) {
+      const q = dashboardSearchQuery.toLowerCase();
+      const matchName = drop.fileName.toLowerCase().includes(q);
+      const matchCode = drop.code.toLowerCase().includes(q);
+      if (!matchName && !matchCode) return false;
+    }
+    if (currentDashboardFilter === 'encrypted') {
+      return drop.isEncrypted;
+    }
+    if (currentDashboardFilter === 'active') {
+      return !drop.expiresAt || drop.expiresAt > Date.now();
+    }
+    return true;
+  });
+
+  if (filteredDrops.length === 0) {
     container.innerHTML = `
-      <div class="text-center py-12 text-on-surface-variant">
-        <span class="material-symbols-outlined text-4xl mb-2 opacity-50">folder_open</span>
-        <p class="text-base font-semibold">No Active Drops Found</p>
-        <p class="text-xs mt-1">Files you drop will appear here for easy management.</p>
+      <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-surface-container-highest flex items-center justify-center mb-4 text-on-surface-variant">
+          <span class="material-symbols-outlined text-3xl">folder_open</span>
+        </div>
+        <h3 class="font-headline-sm text-lg font-bold text-on-surface mb-1">No drops found</h3>
+        <p class="font-body-md text-xs text-on-surface-variant max-w-sm mb-6">No drops match your current filter or search query. Create a new drop to get started.</p>
+        <button onclick="switchTab('upload')" class="bg-primary text-on-primary py-2.5 px-6 rounded-xl font-semibold text-xs hover:bg-primary-fixed transition-colors shadow-sm inline-flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">add</span> Create First Drop
+        </button>
       </div>
     `;
     return;
   }
 
   let html = `
-    <table class="w-full border-collapse text-left text-sm">
+    <table class="w-full text-left border-collapse">
       <thead>
-        <tr class="border-b border-outline-variant/30 text-on-surface-variant font-semibold">
-          <th class="py-3 px-4">Code</th>
-          <th class="py-3 px-4">File Name</th>
-          <th class="py-3 px-4">Size</th>
-          <th class="py-3 px-4">Expiration</th>
-          <th class="py-3 px-4">Downloads</th>
-          <th class="py-3 px-4">Actions</th>
+        <tr class="bg-surface-container-low border-b border-outline-variant/30 text-on-surface-variant text-xs uppercase font-semibold">
+          <th class="py-3 px-4">Type</th>
+          <th class="py-3 px-4">Filename</th>
+          <th class="py-3 px-4">Drop Code</th>
+          <th class="py-3 px-4">Expires</th>
+          <th class="py-3 px-4">DLs</th>
+          <th class="py-3 px-4">Encryption</th>
+          <th class="py-3 px-4 text-right">Actions</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-outline-variant/10">
+      <tbody class="divide-y divide-outline-variant/10 text-sm">
   `;
 
-  drops.forEach(drop => {
+  filteredDrops.forEach(drop => {
     const shareUrl = `${window.location.origin}${window.location.pathname}?code=${drop.code}`;
     let expiryStr = 'No expiry';
+    let isExpired = false;
+
     if (drop.expiryType === '1time') expiryStr = '1-time download';
     else if (drop.expiresAt) {
       const remainingMs = drop.expiresAt - Date.now();
-      const mins = Math.floor(remainingMs / (1000 * 60));
-      expiryStr = mins < 60 ? `${mins} mins left` : `${Math.floor(mins/60)} hrs left`;
+      if (remainingMs <= 0) {
+        expiryStr = 'Expired';
+        isExpired = true;
+      } else {
+        const mins = Math.floor(remainingMs / (1000 * 60));
+        expiryStr = mins < 60 ? `${mins} mins` : `${Math.floor(mins/60)} hrs`;
+      }
     }
 
+    const iconName = getFileIcon(drop.fileType, drop.fileName);
+
     html += `
-      <tr class="hover:bg-surface-container/40 transition-colors">
-        <td class="py-3 px-4"><span class="font-label-md font-bold text-primary bg-primary-container/20 border border-primary/30 px-2.5 py-1 rounded-lg">${drop.code}</span></td>
+      <tr class="hover:bg-surface-container-lowest/50 transition-colors group">
         <td class="py-3 px-4">
-          <div class="font-medium text-on-surface">${drop.fileName}</div>
-          ${drop.isEncrypted ? '<span class="text-[11px] text-tertiary flex items-center gap-1"><span class="material-symbols-outlined text-xs">lock</span> Encrypted</span>' : ''}
+          <div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-base">${iconName}</span>
+          </div>
         </td>
-        <td class="py-3 px-4 text-on-surface-variant">${formatBytes(drop.fileSize)}</td>
-        <td class="py-3 px-4 text-secondary">${expiryStr}</td>
+        <td class="py-3 px-4">
+          <div class="font-semibold text-on-surface break-all">${drop.fileName}</div>
+          <div class="text-xs text-on-surface-variant">${formatBytes(drop.fileSize)}</div>
+        </td>
+        <td class="py-3 px-4">
+          <span class="font-label-md text-xs bg-surface-container-high px-2.5 py-1 rounded-lg text-primary font-bold">${drop.code}</span>
+        </td>
+        <td class="py-3 px-4 text-xs font-medium ${isExpired ? 'text-error font-bold' : 'text-on-surface-variant'}">${expiryStr}</td>
         <td class="py-3 px-4 font-bold text-on-surface">${drop.downloadsCount || 0}</td>
         <td class="py-3 px-4">
-          <div class="flex items-center gap-2">
-            <button onclick="copyText('${drop.code}', 'Code')" class="bg-surface-container border border-outline-variant/40 text-on-surface px-2.5 py-1 rounded-lg text-xs hover:bg-surface-bright transition-colors flex items-center gap-1">📋 Code</button>
-            <button onclick="copyText('${shareUrl}', 'Link')" class="bg-surface-container border border-outline-variant/40 text-on-surface px-2.5 py-1 rounded-lg text-xs hover:bg-surface-bright transition-colors flex items-center gap-1">🔗 Link</button>
-            <button onclick="handleDeleteDrop('${drop.code}')" class="bg-error-container/30 border border-error/40 text-error px-2 py-1 rounded-lg text-xs hover:bg-error-container/60 transition-colors flex items-center gap-1">🗑️ Delete</button>
+          ${drop.isEncrypted ? `
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary/10 text-tertiary text-xs font-semibold">
+              <span class="material-symbols-outlined text-[14px]">lock</span> AES-256
+            </span>
+          ` : `
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant text-xs">
+              <span class="material-symbols-outlined text-[14px]">lock_open</span> None
+            </span>
+          `}
+        </td>
+        <td class="py-3 px-4 text-right">
+          <div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+            <button onclick="copyText('${shareUrl}', 'Link')" class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Copy Link">
+              <span class="material-symbols-outlined text-[18px]">content_copy</span>
+            </button>
+            <button onclick="handleDeleteDrop('${drop.code}')" class="p-1.5 text-on-surface-variant hover:text-error hover:bg-error/10 rounded-lg transition-colors" title="Delete Drop">
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+            </button>
           </div>
         </td>
       </tr>
@@ -382,7 +458,12 @@ async function processCreateDrop() {
     return;
   }
 
-  const expiryType = document.getElementById('expirySelect').value;
+  let expiryType = document.getElementById('expirySelect').value;
+  const checkDeleteAfter = document.getElementById('checkDeleteAfter');
+  if (checkDeleteAfter && checkDeleteAfter.checked) {
+    expiryType = '1time';
+  }
+
   const enablePass = document.getElementById('enablePassCheck').checked;
   const password = document.getElementById('passInput').value;
 
@@ -430,6 +511,19 @@ function openShareModal(drop) {
   const shareUrl = `${window.location.origin}${window.location.pathname}?code=${drop.code}`;
   document.getElementById('modalShareUrl').value = shareUrl;
 
+  const expiryTitle = document.getElementById('modalExpiryTitle');
+  if (expiryTitle) {
+    if (drop.expiryType === '1time') expiryTitle.textContent = 'Expires after 1 download';
+    else if (drop.expiryType === '10m') expiryTitle.textContent = 'Expires in 10 minutes';
+    else if (drop.expiryType === '1h') expiryTitle.textContent = 'Expires in 1 hour';
+    else expiryTitle.textContent = 'Expires in 24 hours';
+  }
+
+  const encTitle = document.getElementById('modalEncryptedTitle');
+  if (encTitle) {
+    encTitle.textContent = drop.isEncrypted ? 'End-to-End Encrypted' : 'Standard Protection';
+  }
+
   modal.classList.remove('hidden');
   renderSimpleQR('modalQrCanvas', shareUrl);
 }
@@ -443,10 +537,10 @@ function renderSimpleQR(containerId, text) {
     if (typeof window.QRCode === 'function') {
       new window.QRCode(container, {
         text: text,
-        width: 170,
-        height: 170,
-        colorDark: '#c0c1ff',
-        colorLight: '#131315'
+        width: 120,
+        height: 120,
+        colorDark: '#000000',
+        colorLight: '#ffffff'
       });
     } else {
       console.warn('window.QRCode is not loaded yet');
@@ -454,6 +548,56 @@ function renderSimpleQR(containerId, text) {
   } catch (err) {
     console.error('QR rendering error:', err);
   }
+}
+
+// Recent Codes Storage & Chip Management
+function getRecentCodes() {
+  try {
+    return JSON.parse(localStorage.getItem('droply_recent_codes') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveRecentCode(code) {
+  if (!code) return;
+  let list = getRecentCodes();
+  list = list.filter(c => c !== code);
+  list.unshift(code);
+  if (list.length > 5) list = list.slice(0, 5);
+  localStorage.setItem('droply_recent_codes', JSON.stringify(list));
+  renderRecentCodes();
+}
+
+function renderRecentCodes() {
+  const container = document.getElementById('recentCodesContainer');
+  const section = document.getElementById('recentCodesSection');
+  if (!container || !section) return;
+
+  const list = getRecentCodes();
+  if (list.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  container.innerHTML = '';
+
+  list.forEach(code => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'px-3 py-1.5 bg-surface-container border border-outline-variant/30 rounded-full hover:bg-surface-container-high hover:border-primary/50 transition-colors group flex items-center gap-1.5 text-xs';
+    chip.innerHTML = `
+      <span class="font-label-md text-on-surface-variant group-hover:text-primary transition-colors font-semibold">${code}</span>
+      <span class="material-symbols-outlined text-[14px] text-outline group-hover:text-primary">history</span>
+    `;
+    chip.addEventListener('click', () => {
+      const input = document.getElementById('claimCodeInput');
+      if (input) input.value = code;
+      lookupClaimCode(code);
+    });
+    container.appendChild(chip);
+  });
 }
 
 // Claim File Lookup & Metadata Sidebar Populator
@@ -475,6 +619,9 @@ async function lookupClaimCode(codeToSearch) {
     showToast('No active drop found for code: ' + code, 'error');
     return;
   }
+
+  // Save to recent codes
+  saveRecentCode(drop.code);
 
   currentClaimDrop = drop;
 
@@ -779,6 +926,50 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Download QR Code image
+  const btnDownloadQR = document.getElementById('btnDownloadQR');
+  if (btnDownloadQR) {
+    btnDownloadQR.addEventListener('click', () => {
+      const canvas = document.querySelector('#modalQrCanvas canvas');
+      const img = document.querySelector('#modalQrCanvas img');
+      let dataUrl = null;
+      if (canvas) dataUrl = canvas.toDataURL('image/png');
+      else if (img) dataUrl = img.src;
+
+      if (dataUrl) {
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `drop-qr-${document.getElementById('modalCodeBadge').textContent || 'code'}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast('QR Code image downloaded!', 'success');
+      } else {
+        showToast('QR Code image unavailable', 'error');
+      }
+    });
+  }
+
+  // Share Another File Action
+  const btnShareAnotherModal = document.getElementById('btnShareAnotherModal');
+  if (btnShareAnotherModal) {
+    btnShareAnotherModal.addEventListener('click', () => {
+      document.getElementById('shareModal').classList.add('hidden');
+      switchTab('upload');
+      document.getElementById('tab-upload')?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
+  // Return to Dashboard Action
+  const btnReturnDashboardModal = document.getElementById('btnReturnDashboardModal');
+  if (btnReturnDashboardModal) {
+    btnReturnDashboardModal.addEventListener('click', () => {
+      document.getElementById('shareModal').classList.add('hidden');
+      switchTab('drops');
+      document.getElementById('tab-drops')?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
   // Check URL query parameter `?code=DROP-XXXX`
   const params = new URLSearchParams(window.location.search);
   const codeParam = params.get('code');
@@ -787,6 +978,40 @@ document.addEventListener('DOMContentLoaded', () => {
     switchTab('claim');
     lookupClaimCode(codeParam);
   }
+
+  // Dashboard Search Input Listener
+  const searchInput = document.getElementById('dashboardSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      dashboardSearchQuery = e.target.value;
+      renderMyDrops();
+    });
+  }
+
+  // Dashboard Filter Category Buttons
+  const filterBtns = {
+    all: document.getElementById('filterBtnAll'),
+    active: document.getElementById('filterBtnActive'),
+    encrypted: document.getElementById('filterBtnEncrypted')
+  };
+
+  Object.keys(filterBtns).forEach(key => {
+    const btn = filterBtns[key];
+    if (btn) {
+      btn.addEventListener('click', () => {
+        currentDashboardFilter = key;
+        Object.keys(filterBtns).forEach(k => {
+          if (filterBtns[k]) {
+            const isActive = k === key;
+            filterBtns[k].className = isActive
+              ? 'filter-tab-btn flex-1 sm:flex-none px-4 py-2 border border-primary/50 bg-primary/10 text-primary rounded-lg text-xs font-semibold transition-colors'
+              : 'filter-tab-btn flex-1 sm:flex-none px-4 py-2 border border-outline-variant/30 text-on-surface-variant rounded-lg text-xs font-medium hover:bg-surface-container-high transition-colors';
+          }
+        });
+        renderMyDrops();
+      });
+    }
+  });
 
   // Multi-tab broadcast updates
   if (broadcastChannel) {
@@ -798,6 +1023,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Initial Recent Codes render
+  renderRecentCodes();
 
   updateActiveBadge();
 });
