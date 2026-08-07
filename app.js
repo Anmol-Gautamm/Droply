@@ -684,6 +684,21 @@ async function lookupClaimCode(codeToSearch) {
   }
 
   resultContainer.style.display = 'flex';
+
+  // Automatically scroll down to the file preview and metadata section
+  setTimeout(() => {
+    const navHeaderHeight = 90;
+    const targetElement = drop.isEncrypted ? document.getElementById('passwordUnlockForm') : resultContainer;
+    if (targetElement) {
+      const elementTop = targetElement.getBoundingClientRect().top + window.pageYOffset;
+      const targetScrollPosition = Math.max(0, elementTop - navHeaderHeight);
+
+      window.scrollTo({
+        top: targetScrollPosition,
+        behavior: 'smooth'
+      });
+    }
+  }, 120);
 }
 
 function renderFilePreview(containerId, blob, fileName, fileType) {
@@ -855,6 +870,19 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('File unlocked!', 'success');
         document.getElementById('passwordUnlockForm').style.display = 'none';
         renderFilePreview('claimPreviewBox', blob, currentClaimDrop.fileName, currentClaimDrop.fileType);
+
+        // Smooth scroll to preview window
+        setTimeout(() => {
+          const previewElem = document.getElementById('claimResultContainer');
+          if (previewElem) {
+            const navHeaderHeight = 90;
+            const elementTop = previewElem.getBoundingClientRect().top + window.pageYOffset;
+            window.scrollTo({
+              top: Math.max(0, elementTop - navHeaderHeight),
+              behavior: 'smooth'
+            });
+          }
+        }, 100);
       } catch (err) {
         showToast('Incorrect password. Try again.', 'error');
       }
