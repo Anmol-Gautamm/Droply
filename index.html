@@ -169,14 +169,21 @@
     .animate-spin-slow {
       animation: spin-slow 12s linear infinite;
     }
-    html {
-      scroll-behavior: smooth;
-    }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+    .nav-tab-btn {
+      color: var(--text-on-surface-variant);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .nav-tab-btn:hover {
+      color: var(--text-on-surface);
+      background-color: rgba(128, 131, 255, 0.1);
+    }
     .nav-tab-btn.active {
-      color: var(--color-primary);
-      border-bottom: 2px solid var(--color-primary);
+      color: var(--color-primary) !important;
+      background: var(--bg-surface-bright) !important;
+      border: 1px solid rgba(128, 131, 255, 0.35) !important;
+      box-shadow: 0 4px 15px -3px rgba(99, 102, 241, 0.35);
     }
     .dropzone-container.drag-active {
       border-color: var(--color-primary) !important;
@@ -240,6 +247,21 @@
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-8px); }
     }
+
+    /* Floating Header Auto-Hide/Reveal Transitions */
+    #floatingHeader {
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+      will-change: transform, opacity;
+    }
+    .header-hidden {
+      transform: translateY(-140%) !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+    .header-visible {
+      transform: translateY(0) !important;
+      opacity: 1 !important;
+    }
   </style>
 </head>
 
@@ -247,31 +269,54 @@
   <!-- Hidden File Input -->
   <input type="file" id="fileInput" style="display: none;" />
 
-  <!-- TopAppBar Header -->
-  <header class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-outline-variant/30 shadow-sm">
-    <div class="flex justify-between items-center h-16 px-gutter max-w-container-max-width mx-auto">
-      <!-- Brand -->
-      <a href="#" onclick="location.reload(); return false;" class="flex items-center gap-2">
-        <span class="material-symbols-outlined text-primary text-[28px]">cloud_upload</span>
-        <span class="font-headline-md text-headline-md font-bold text-primary">Droply</span>
+  <!-- Floating Glassmorphism Header -->
+  <header id="floatingHeader" class="fixed top-4 left-0 right-0 z-50 px-4">
+    <div class="max-w-5xl mx-auto bg-surface/75 dark:bg-surface-container-low/75 backdrop-blur-2xl border border-white/10 dark:border-outline-variant/30 rounded-full px-5 py-2.5 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.4)] flex justify-between items-center relative overflow-hidden group">
+      
+      <!-- Ambient Glow Behind Logo -->
+      <div class="absolute -top-10 left-1/4 w-32 h-20 bg-primary/20 rounded-full blur-2xl pointer-events-none"></div>
+
+      <!-- Brand Logo -->
+      <a href="#" onclick="location.reload(); return false;" class="flex items-center gap-2.5 group/logo">
+        <div class="w-9 h-9 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-primary group-hover/logo:scale-110 group-hover/logo:rotate-12 transition-all duration-300 shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+          <span class="material-symbols-outlined text-xl">cloud_upload</span>
+        </div>
+        <span class="font-headline-md text-xl font-bold tracking-tight text-on-surface group-hover/logo:text-primary transition-colors">
+          Drop<span class="text-primary">ly</span>
+        </span>
       </a>
 
-      <!-- Navigation Links -->
-      <nav class="hidden md:flex gap-6 items-center">
-        <button class="nav-tab-btn text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2 active" data-tab="upload">Upload</button>
-        <button class="nav-tab-btn text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2" data-tab="claim">Retrieve</button>
-        <button class="nav-tab-btn text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2 flex items-center gap-1.5" data-tab="drops">
-          My Drops
-          <span id="activeCountBadge" class="hidden bg-primary text-on-primary text-[11px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+      <!-- Navigation Tabs Center Pill Bar -->
+      <nav class="hidden md:flex items-center gap-1.5 bg-surface-container-highest/40 dark:bg-surface-container/60 p-1.5 rounded-full border border-outline-variant/20 shadow-inner">
+        <button class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-full font-label-md text-xs font-semibold active" data-tab="upload">
+          <span class="material-symbols-outlined text-base">cloud_upload</span>
+          <span>Upload</span>
+        </button>
+        <button class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-full font-label-md text-xs font-semibold" data-tab="claim">
+          <span class="material-symbols-outlined text-base">download</span>
+          <span>Retrieve</span>
+        </button>
+        <button class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-full font-label-md text-xs font-semibold" data-tab="drops">
+          <span class="material-symbols-outlined text-base">folder_open</span>
+          <span>My Drops</span>
+          <span id="activeCountBadge" class="hidden bg-primary text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">0</span>
         </button>
       </nav>
 
-      <!-- Actions -->
-      <div class="flex items-center gap-4">
-        <button id="btnThemeToggle" aria-label="Dark Mode" class="text-on-surface hover:text-primary transition-colors active:scale-95 transition-transform">
-          <span id="themeToggleIcon" class="material-symbols-outlined">dark_mode</span>
+      <!-- Actions Right Side -->
+      <div class="flex items-center gap-3">
+        <!-- Quick Action "+ Drop File" Button -->
+        <button onclick="switchTab('upload'); document.getElementById('tab-upload')?.scrollIntoView({behavior:'smooth'});" class="btn-animated bg-primary text-on-primary font-semibold text-xs py-2 px-4 rounded-full shadow-md flex items-center gap-1.5 hover:bg-primary-fixed">
+          <span class="material-symbols-outlined text-sm">add</span>
+          <span class="hidden sm:inline">Drop File</span>
+        </button>
+
+        <!-- Dark/Light Theme Toggle Glass Button -->
+        <button id="btnThemeToggle" aria-label="Toggle Theme" class="w-9 h-9 rounded-full bg-surface-container-highest/60 border border-outline-variant/30 text-on-surface hover:text-primary hover:border-primary/40 flex items-center justify-center transition-all duration-300 active:scale-90 shadow-sm" title="Toggle Light/Dark Theme">
+          <span id="themeToggleIcon" class="material-symbols-outlined text-lg transition-transform duration-300 hover:rotate-45">dark_mode</span>
         </button>
       </div>
+
     </div>
   </header>
 

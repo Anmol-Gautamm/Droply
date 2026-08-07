@@ -290,7 +290,7 @@ function switchTab(tabId) {
   // Smooth Auto-Scroll to the active tab screen
   const targetTab = document.getElementById(`tab-${tabId}`);
   if (targetTab) {
-    const navHeaderHeight = 70;
+    const navHeaderHeight = 90;
     const elementTop = targetTab.getBoundingClientRect().top + window.pageYOffset;
     const targetScrollPosition = Math.max(0, elementTop - navHeaderHeight);
 
@@ -1182,6 +1182,44 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Smart Auto-Hiding / Revealing Floating Header Engine
+  const floatingHeader = document.getElementById('floatingHeader');
+  let lastScrollY = window.pageYOffset;
+  let isHeaderHidden = false;
+
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.pageYOffset;
+
+    if (currentScrollY <= 30) {
+      if (isHeaderHidden && floatingHeader) {
+        floatingHeader.classList.remove('header-hidden');
+        floatingHeader.classList.add('header-visible');
+        isHeaderHidden = false;
+      }
+      lastScrollY = currentScrollY;
+      return;
+    }
+
+    // Scroll Down -> Hide Header
+    if (currentScrollY > lastScrollY + 8 && !isHeaderHidden && currentScrollY > 90) {
+      if (floatingHeader) {
+        floatingHeader.classList.remove('header-visible');
+        floatingHeader.classList.add('header-hidden');
+        isHeaderHidden = true;
+      }
+    } 
+    // Scroll Up -> Reveal Header
+    else if (currentScrollY < lastScrollY - 6 && isHeaderHidden) {
+      if (floatingHeader) {
+        floatingHeader.classList.remove('header-hidden');
+        floatingHeader.classList.add('header-visible');
+        isHeaderHidden = false;
+      }
+    }
+
+    lastScrollY = currentScrollY;
+  }, { passive: true });
 
   // Initial Recent Codes render
   renderRecentCodes();
