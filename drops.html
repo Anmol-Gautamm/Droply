@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>My Drops - Droply</title>
+
+  <!-- Tailwind CSS & Plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- Fonts & Material Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+
+  <!-- Lucide Icons Library -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Standalone QRCode Engine -->
+  <script src="qrcode.min.js"></script>
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "background": "var(--bg-background)",
+            "surface": "var(--bg-surface)",
+            "surface-dim": "var(--bg-surface-dim)",
+            "surface-bright": "var(--bg-surface-bright)",
+            "surface-container-lowest": "var(--bg-surface-container-lowest)",
+            "surface-container-low": "var(--bg-surface-container-low)",
+            "surface-container": "var(--bg-surface-container)",
+            "surface-container-high": "var(--bg-surface-container-high)",
+            "surface-container-highest": "var(--bg-surface-container-highest)",
+            "on-surface": "var(--text-on-surface)",
+            "on-surface-variant": "var(--text-on-surface-variant)",
+            "outline": "var(--border-outline)",
+            "outline-variant": "var(--border-outline-variant)",
+            "primary": "var(--color-primary)",
+            "primary-fixed": "var(--color-primary-fixed)",
+            "primary-container": "var(--color-primary-container)",
+            "on-primary-container": "var(--text-on-primary-container)",
+            "secondary": "var(--color-secondary)",
+            "tertiary": "var(--color-tertiary)",
+            "on-primary": "#ffffff",
+            "error": "#ffb4ab",
+            "error-container": "#93000a",
+            "on-error": "#690005"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "md": "16px",
+            "xs": "4px",
+            "xl": "40px",
+            "sm": "8px",
+            "gutter": "24px",
+            "unit": "4px",
+            "lg": "24px",
+            "margin-mobile": "16px",
+            "container-max-width": "1280px"
+          },
+          "fontFamily": {
+            "headline-sm": ["Geist"],
+            "label-md": ["JetBrains Mono"],
+            "headline-md": ["Geist"],
+            "body-md": ["Geist"],
+            "headline-lg-mobile": ["Geist"],
+            "headline-lg": ["Geist"],
+            "display-lg": ["Geist"],
+            "label-sm": ["JetBrains Mono"],
+            "body-lg": ["Geist"]
+          },
+          "fontSize": {
+            "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg-background: #fbf9f7;
+      --bg-surface: #ffffff;
+      --bg-surface-dim: #f5f3f2;
+      --bg-surface-bright: #ffffff;
+      --bg-surface-container-lowest: #ffffff;
+      --bg-surface-container-low: #f5f3f2;
+      --bg-surface-container: #efedec;
+      --bg-surface-container-high: #e9e8e6;
+      --bg-surface-container-highest: #e4e2e1;
+      --text-on-surface: #1b1c1b;
+      --text-on-surface-variant: #454843;
+      --border-outline: #757873;
+      --border-outline-variant: #c5c7c1;
+      --color-primary: #4f46e5;
+      --color-primary-fixed: #4338ca;
+      --color-primary-container: #eef2ff;
+      --text-on-primary-container: #3730a3;
+      --color-secondary: #0284c7;
+      --color-tertiary: #059669;
+    }
+
+    html.dark {
+      --bg-background: #131315;
+      --bg-surface: #131315;
+      --bg-surface-dim: #131315;
+      --bg-surface-bright: #39393b;
+      --bg-surface-container-lowest: #0e0e10;
+      --bg-surface-container-low: #1c1b1d;
+      --bg-surface-container: #201f22;
+      --bg-surface-container-high: #2a2a2c;
+      --bg-surface-container-highest: #353437;
+      --text-on-surface: #e5e1e4;
+      --text-on-surface-variant: #c7c4d7;
+      --border-outline: #908fa0;
+      --border-outline-variant: #464554;
+      --color-primary: #c0c1ff;
+      --color-primary-fixed: #e1e0ff;
+      --color-primary-container: #312e81;
+      --text-on-primary-container: #e0e7ff;
+      --color-secondary: #4cd7f6;
+      --color-tertiary: #4edea3;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface antialiased min-h-screen flex flex-col font-body-md text-body-md">
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-20 right-6 z-[99999] flex flex-col gap-3 max-w-sm pointer-events-none"></div>
+
+  <!-- TopAppBar Header -->
+  <header class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-outline-variant/30 shadow-sm">
+    <div class="flex justify-between items-center h-16 px-gutter max-w-container-max-width mx-auto">
+      <!-- Brand -->
+      <a href="index.html" class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-[28px]">cloud_upload</span>
+        <span class="font-headline-md text-headline-md font-bold text-primary">Droply</span>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex gap-6 items-center">
+        <a href="index.html" class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2">Upload</a>
+        <a href="retrieve.html" class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2">Retrieve</a>
+        <a href="drops.html" class="text-primary font-bold border-b-2 border-primary py-2 flex items-center gap-1.5">
+          My Drops
+          <span id="activeCountBadge" class="hidden bg-primary text-on-primary text-[11px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+        </a>
+      </nav>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-4">
+        <button id="btnThemeToggle" aria-label="Dark Mode" class="text-on-surface hover:text-primary transition-colors active:scale-95 transition-transform">
+          <span id="themeToggleIcon" class="material-symbols-outlined">dark_mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Canvas -->
+  <main class="flex-grow flex flex-col pt-24 pb-16">
+    <div id="tab-drops" class="px-gutter max-w-container-max-width mx-auto w-full">
+      <div class="flex flex-col md:flex-row gap-6 items-start">
+        
+        <!-- Dashboard Sidebar -->
+        <aside class="w-full md:w-64 bg-surface-container-low border border-outline-variant/30 rounded-2xl p-5 shrink-0 shadow-lg">
+          <div class="mb-4">
+            <h2 class="font-headline-sm text-lg font-bold text-on-surface">My Drops</h2>
+            <p class="font-label-sm text-xs text-on-surface-variant mt-0.5">Manage your files</p>
+          </div>
+          
+          <a href="index.html" class="w-full bg-primary text-on-primary py-2.5 px-4 rounded-xl font-semibold text-xs mb-4 hover:bg-primary-fixed transition-colors active:scale-95 shadow-sm inline-flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-sm">add</span> New Drop
+          </a>
+
+          <nav class="flex flex-col gap-1">
+            <button id="sidebarNavAll" class="w-full flex items-center gap-3 bg-primary/10 text-primary rounded-xl px-4 py-2.5 font-medium text-xs transition-all text-left">
+              <span class="material-symbols-outlined text-base">folder</span>
+              <span>All Drops</span>
+            </button>
+            <button id="sidebarNavShared" class="w-full flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl px-4 py-2.5 font-medium text-xs transition-all text-left">
+              <span class="material-symbols-outlined text-base">share</span>
+              <span>Shared</span>
+            </button>
+            <button id="sidebarNavStarred" class="w-full flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl px-4 py-2.5 font-medium text-xs transition-all text-left">
+              <span class="material-symbols-outlined text-base">star</span>
+              <span>Starred</span>
+            </button>
+            <button id="sidebarNavTrash" class="w-full flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl px-4 py-2.5 font-medium text-xs transition-all text-left">
+              <span class="material-symbols-outlined text-base">delete</span>
+              <span>Trash</span>
+            </button>
+          </nav>
+        </aside>
+
+        <!-- Main Dashboard View -->
+        <div class="flex-1 w-full space-y-6">
+          
+          <!-- Stats Row -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-surface-container-low border border-outline-variant/30 p-5 rounded-xl shadow-sm">
+              <p class="font-label-md text-xs text-on-surface-variant uppercase tracking-wider mb-2">Active Files</p>
+              <p id="dashboardStatActive" class="font-headline-lg text-3xl font-bold text-on-surface">0</p>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant/30 p-5 rounded-xl shadow-sm">
+              <p class="font-label-md text-xs text-on-surface-variant uppercase tracking-wider mb-2">Downloads</p>
+              <p id="dashboardStatDownloads" class="font-headline-lg text-3xl font-bold text-on-surface">0</p>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant/30 p-5 rounded-xl shadow-sm">
+              <p class="font-label-md text-xs text-on-surface-variant uppercase tracking-wider mb-2">Encrypted</p>
+              <p id="dashboardStatEncrypted" class="font-headline-lg text-3xl font-bold text-on-surface">0</p>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant/30 p-5 rounded-xl shadow-sm">
+              <p class="font-label-md text-xs text-on-surface-variant uppercase tracking-wider mb-2">Storage Used</p>
+              <p id="dashboardStatStorage" class="font-headline-lg text-3xl font-bold text-on-surface">0 <span class="text-on-surface-variant text-sm font-normal">MB</span></p>
+            </div>
+          </div>
+
+          <!-- Toolbar: Search & Filter -->
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface-container-low p-4 rounded-xl border border-outline-variant/30">
+            <div class="relative w-full sm:w-72">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+              <input id="dashboardSearchInput" type="text" placeholder="Search drops..." class="w-full bg-surface-container-lowest border border-outline-variant/40 text-on-surface text-sm rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-primary transition-all" />
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto">
+              <button id="filterBtnAll" class="filter-tab-btn flex-1 sm:flex-none px-4 py-2 border border-primary/50 bg-primary/10 text-primary rounded-lg text-xs font-semibold transition-colors">Active</button>
+              <button id="filterBtnActive" class="filter-tab-btn flex-1 sm:flex-none px-4 py-2 border border-outline-variant/30 text-on-surface-variant rounded-lg text-xs font-medium hover:bg-surface-container-high transition-colors">Expired</button>
+              <button id="filterBtnEncrypted" class="filter-tab-btn flex-1 sm:flex-none px-4 py-2 border border-outline-variant/30 text-on-surface-variant rounded-lg text-xs font-medium hover:bg-surface-container-high transition-colors">Encrypted</button>
+            </div>
+          </div>
+
+          <!-- Data Table Container -->
+          <div class="bg-surface-container-low border border-outline-variant/30 rounded-2xl overflow-hidden shadow-xl">
+            <div id="dropsTableContainer" class="overflow-x-auto"></div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-background dark:bg-surface-dim w-full py-lg border-t border-outline-variant/10 relative z-20 mt-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center px-gutter max-w-container-max-width mx-auto">
+      <div class="flex items-center gap-2 mb-4 md:mb-0">
+        <span class="material-symbols-outlined text-outline text-sm">cloud</span>
+        <span class="font-label-md text-label-md font-bold text-outline">© 2026 Droply Inc.</span>
+      </div>
+      <nav class="flex gap-6">
+        <button id="footerPrivacy" class="font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors opacity-80 hover:opacity-100">Privacy</button>
+        <button id="footerTerms" class="font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors opacity-80 hover:opacity-100">Terms</button>
+        <button id="footerStatus" class="font-label-sm text-label-sm text-outline hover:text-on-surface transition-colors opacity-80 hover:opacity-100 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-tertiary"></span> System Status</button>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Application Engine -->
+  <script src="app.js"></script>
+</body>
+</html>

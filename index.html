@@ -192,12 +192,12 @@
 
       <!-- Navigation Links -->
       <nav class="hidden md:flex gap-6 items-center">
-        <button class="nav-tab-btn text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2 active" data-tab="upload">Upload</button>
-        <button class="nav-tab-btn text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2" data-tab="claim">Retrieve</button>
-        <button class="nav-tab-btn text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2 flex items-center gap-1.5" data-tab="drops">
+        <a href="index.html" class="text-primary font-bold border-b-2 border-primary py-2">Upload</a>
+        <a href="retrieve.html" class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2">Retrieve</a>
+        <a href="drops.html" class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2 flex items-center gap-1.5">
           My Drops
           <span id="activeCountBadge" class="hidden bg-primary text-on-primary text-[11px] font-bold px-1.5 py-0.5 rounded-full">0</span>
-        </button>
+        </a>
       </nav>
 
       <!-- Actions -->
@@ -329,10 +329,10 @@ void main() {
             Upload Files
             <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           </button>
-          <button id="heroBtnRetrieve" class="bg-transparent border border-outline-variant text-on-surface font-headline-sm text-headline-sm py-4 px-8 rounded-lg hover:bg-surface-container hover:border-outline transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
+          <a id="heroBtnRetrieve" href="retrieve.html" class="bg-transparent border border-outline-variant text-on-surface font-headline-sm text-headline-sm py-4 px-8 rounded-lg hover:bg-surface-container hover:border-outline transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
             <span class="material-symbols-outlined">download</span>
             Retrieve Drop
-          </button>
+          </a>
         </div>
       </div>
     </section>

@@ -969,8 +969,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnShareAnotherModal) {
     btnShareAnotherModal.addEventListener('click', () => {
       document.getElementById('shareModal').classList.add('hidden');
-      switchTab('upload');
-      document.getElementById('tab-upload')?.scrollIntoView({ behavior: 'smooth' });
+      if (window.location.pathname.includes('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
+        switchTab('upload');
+      } else {
+        window.location.href = 'index.html';
+      }
     });
   }
 
@@ -979,8 +982,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnReturnDashboardModal) {
     btnReturnDashboardModal.addEventListener('click', () => {
       document.getElementById('shareModal').classList.add('hidden');
-      switchTab('drops');
-      document.getElementById('tab-drops')?.scrollIntoView({ behavior: 'smooth' });
+      window.location.href = 'drops.html';
     });
   }
 
@@ -988,9 +990,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const codeParam = params.get('code');
   if (codeParam) {
-    document.getElementById('claimCodeInput').value = codeParam.toUpperCase();
-    switchTab('claim');
-    lookupClaimCode(codeParam);
+    const claimInput = document.getElementById('claimCodeInput');
+    if (claimInput) {
+      claimInput.value = codeParam.toUpperCase();
+      switchTab('claim');
+      lookupClaimCode(codeParam);
+    } else if (!window.location.pathname.includes('retrieve.html')) {
+      window.location.href = `retrieve.html?code=${encodeURIComponent(codeParam)}`;
+    }
   }
 
   // Theme Toggle Engine
