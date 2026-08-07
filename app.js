@@ -940,6 +940,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Backdrop click listener to return to web page
+  const shareModalOverlay = document.getElementById('shareModal');
+  if (shareModalOverlay) {
+    shareModalOverlay.addEventListener('click', (e) => {
+      if (e.target === shareModalOverlay) {
+        shareModalOverlay.classList.add('hidden');
+      }
+    });
+  }
+
   // Download QR Code image
   const btnDownloadQR = document.getElementById('btnDownloadQR');
   if (btnDownloadQR) {

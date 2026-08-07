@@ -1011,14 +1011,16 @@ void main() {
   </main>
 
   <!-- Share Modal Overlay -->
-  <div id="shareModal" class="modal-overlay fixed inset-0 bg-background/80 backdrop-blur-md z-[9999] flex items-center justify-center p-4 hidden">
-    <div class="bg-surface-container-high border border-outline-variant/40 rounded-[18px] p-6 md:p-8 max-w-[480px] w-full shadow-2xl relative">
-      <button id="btnCloseModal" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant/30 text-on-surface-variant hover:text-on-surface hover:bg-error-container/40 flex items-center justify-center transition-colors">
-        <span class="material-symbols-outlined text-lg">close</span>
+  <div id="shareModal" class="modal-overlay fixed inset-0 bg-background/80 backdrop-blur-md z-[9999] flex items-center justify-center p-4 sm:p-6 hidden overflow-y-auto">
+    <div class="bg-surface-container-high border border-outline-variant/40 rounded-3xl p-6 md:p-8 max-w-[500px] w-full max-h-[90vh] overflow-y-auto shadow-2xl relative my-auto border-t border-white/10">
+      
+      <!-- Close Button (X) -->
+      <button id="btnCloseModal" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-surface-container-highest border border-outline-variant/30 text-on-surface-variant hover:text-on-surface hover:bg-error-container/40 flex items-center justify-center transition-all duration-200 active:scale-90" title="Close & Return to Web">
+        <span class="material-symbols-outlined text-xl">close</span>
       </button>
 
       <!-- Success Icon -->
-      <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 shadow-[0_0_40px_rgba(192,193,255,0.2)]">
+      <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 shadow-[0_0_40px_rgba(192,193,255,0.25)]">
         <span class="material-symbols-outlined text-4xl text-primary">check_circle</span>
       </div>
 
@@ -1027,9 +1029,9 @@ void main() {
 
       <!-- Secure Drop Code Section -->
       <div class="w-full mb-5">
-        <label class="font-label-md text-[10px] text-on-surface-variant block mb-1.5 uppercase tracking-wider">Secure Drop Code</label>
+        <label class="font-label-md text-[10px] text-on-surface-variant block mb-1.5 uppercase tracking-wider font-semibold">Secure Drop Code</label>
         <div class="flex items-center gap-2">
-          <div class="bg-surface-container-lowest border border-outline-variant/30 flex-1 rounded-xl px-4 py-2.5 flex items-center justify-center">
+          <div class="bg-surface-container-lowest border border-outline-variant/30 flex-1 rounded-xl px-4 py-2.5 flex items-center justify-center shadow-inner">
             <span id="modalCodeBadge" class="font-label-md text-2xl font-extrabold text-primary tracking-[0.2em]">DROP-0000</span>
           </div>
           <button id="btnCopyCodeModal" class="bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 rounded-xl px-4 py-3 flex items-center justify-center transition-colors group" title="Copy Code">
@@ -1040,8 +1042,8 @@ void main() {
 
       <!-- Direct Share Link Section -->
       <div class="w-full mb-6">
-        <label class="font-label-md text-[10px] text-on-surface-variant block mb-1.5 uppercase tracking-wider">Direct Link</label>
-        <div class="bg-surface-container-lowest border border-outline-variant/30 w-full rounded-xl flex items-center overflow-hidden">
+        <label class="font-label-md text-[10px] text-on-surface-variant block mb-1.5 uppercase tracking-wider font-semibold">Direct Link</label>
+        <div class="bg-surface-container-lowest border border-outline-variant/30 w-full rounded-xl flex items-center overflow-hidden shadow-inner">
           <input type="text" id="modalShareUrl" readonly class="w-full bg-transparent border-none text-on-surface font-body-md text-xs px-3 py-2.5 focus:ring-0 outline-none text-ellipsis" />
           <button id="btnCopyUrlModal" class="px-4 py-2.5 bg-surface-container-high hover:bg-surface-container-highest transition-colors flex items-center justify-center border-l border-outline-variant/20 group">
             <span class="font-label-md text-xs text-primary font-bold mr-1.5">Copy</span>
@@ -1051,7 +1053,7 @@ void main() {
       </div>
 
       <!-- QR & Metadata Row -->
-      <div class="w-full flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 mb-6 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20">
+      <div class="w-full flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 mb-6 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 shadow-sm">
         <!-- QR Code Block -->
         <div class="flex flex-col items-center shrink-0">
           <div id="modalQrCanvas" class="flex justify-center items-center rounded-lg overflow-hidden min-h-[120px] min-w-[120px] bg-white p-1.5 shadow-sm"></div>
@@ -1079,13 +1081,13 @@ void main() {
         </div>
       </div>
 
-      <!-- Primary & Secondary Actions -->
-      <div class="flex flex-col gap-2 w-full">
-        <button id="btnShareAnotherModal" class="w-full py-3.5 bg-primary text-on-primary font-headline-sm text-sm rounded-xl hover:bg-primary-fixed transition-all shadow-md active:scale-[0.98] flex justify-center items-center gap-2 font-semibold">
+      <!-- Primary & Return Actions -->
+      <div class="flex flex-col gap-2.5 w-full pt-2 border-t border-outline-variant/15">
+        <button id="btnShareAnotherModal" class="btn-animated w-full py-3.5 bg-primary text-on-primary font-headline-sm text-sm rounded-xl hover:bg-primary-fixed shadow-md flex justify-center items-center gap-2 font-semibold">
           <span class="material-symbols-outlined text-base">add_circle</span> Share Another File
         </button>
-        <button id="btnReturnDashboardModal" class="w-full py-2.5 text-xs text-on-surface-variant hover:text-on-surface transition-colors font-medium">
-          Return to Dashboard
+        <button id="btnReturnDashboardModal" class="w-full py-2.5 border border-outline-variant/30 text-on-surface hover:bg-surface-container-highest transition-colors rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">arrow_back</span> Return to Web / Dashboard
         </button>
       </div>
 
