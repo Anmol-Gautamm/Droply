@@ -174,6 +174,64 @@
       border-color: var(--color-primary) !important;
       background-color: rgba(99, 102, 241, 0.1) !important;
     }
+
+    /* Interactive Card Hover Animations */
+    .interactive-card {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, border-color 0.35s ease, background-color 0.35s ease;
+      will-change: transform, box-shadow;
+    }
+    .interactive-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(128, 131, 255, 0.4) !important;
+      box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.25), 0 0 20px rgba(128, 131, 255, 0.15);
+    }
+    .interactive-card .card-icon-box {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    }
+    .interactive-card:hover .card-icon-box {
+      transform: translateY(-4px) scale(1.15) rotate(6deg);
+      box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Button Hover Shimmer & Lift */
+    .btn-animated {
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, filter 0.25s ease;
+    }
+    .btn-animated::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 50%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transform: rotate(25deg);
+      transition: left 0.6s ease;
+    }
+    .btn-animated:hover::after {
+      left: 140%;
+    }
+    .btn-animated:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 28px -6px rgba(99, 102, 241, 0.45);
+    }
+    .btn-animated:active {
+      transform: translateY(1px) scale(0.97);
+    }
+
+    /* Dropzone Floating Cloud Animation */
+    .dropzone-hover-float {
+      transition: transform 0.4s ease, border-color 0.3s ease, background-color 0.3s ease;
+    }
+    .dropzone-container:hover .dropzone-hover-float {
+      animation: float-slow 3s ease-in-out infinite;
+    }
+    @keyframes float-slow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
   </style>
 </head>
 
@@ -192,12 +250,12 @@
 
       <!-- Navigation Links -->
       <nav class="hidden md:flex gap-6 items-center">
-        <a href="index.html" class="text-primary font-bold border-b-2 border-primary py-2">Upload</a>
-        <a href="retrieve.html" class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2">Retrieve</a>
-        <a href="drops.html" class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2 flex items-center gap-1.5">
+        <button class="nav-tab-btn text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2 active" data-tab="upload">Upload</button>
+        <button class="nav-tab-btn text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2" data-tab="claim">Retrieve</button>
+        <button class="nav-tab-btn text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 py-2 flex items-center gap-1.5" data-tab="drops">
           My Drops
           <span id="activeCountBadge" class="hidden bg-primary text-on-primary text-[11px] font-bold px-1.5 py-0.5 rounded-full">0</span>
-        </a>
+        </button>
       </nav>
 
       <!-- Actions -->
@@ -324,15 +382,14 @@ void main() {
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-          <button id="heroBtnUpload" class="bg-primary text-on-primary font-headline-sm text-headline-sm py-4 px-8 rounded-lg shadow-sm hover:bg-primary-fixed transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden group border-t border-white/20">
-            <span class="material-symbols-outlined">upload_file</span>
+          <button id="heroBtnUpload" class="btn-animated bg-primary text-on-primary font-headline-sm text-headline-sm py-4 px-8 rounded-xl shadow-lg flex items-center justify-center gap-2 relative overflow-hidden group border-t border-white/20">
+            <span class="material-symbols-outlined text-2xl">upload_file</span>
             Upload Files
-            <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           </button>
-          <a id="heroBtnRetrieve" href="retrieve.html" class="bg-transparent border border-outline-variant text-on-surface font-headline-sm text-headline-sm py-4 px-8 rounded-lg hover:bg-surface-container hover:border-outline transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
-            <span class="material-symbols-outlined">download</span>
+          <button id="heroBtnRetrieve" class="btn-animated bg-transparent border border-outline-variant text-on-surface font-headline-sm text-headline-sm py-4 px-8 rounded-xl hover:bg-surface-container hover:border-outline flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-2xl">download</span>
             Retrieve Drop
-          </a>
+          </button>
         </div>
       </div>
     </section>
@@ -349,7 +406,7 @@ void main() {
             
             <!-- Default Drop Prompt -->
             <div id="dropPromptInfo" class="flex flex-col items-center">
-              <div class="w-20 h-20 rounded-full bg-surface-container-highest flex items-center justify-center mb-6 group-hover:bg-primary-container transition-colors duration-200 shadow-md text-on-surface-variant group-hover:text-primary">
+              <div class="dropzone-hover-float w-20 h-20 rounded-full bg-surface-container-highest flex items-center justify-center mb-6 group-hover:bg-primary-container group-hover:scale-110 transition-all duration-300 shadow-md text-on-surface-variant group-hover:text-primary">
                 <span class="material-symbols-outlined text-4xl">cloud_upload</span>
               </div>
               <h2 class="font-headline-lg text-2xl md:text-3xl font-bold text-on-surface mb-2 text-center">
@@ -361,16 +418,16 @@ void main() {
               
               <!-- File Format Badges -->
               <div class="flex flex-wrap justify-center gap-2 mb-6">
-                <span class="px-3 py-1 bg-surface-container rounded-full border border-outline-variant/20 font-label-md text-xs text-on-surface-variant flex items-center gap-1">
+                <span class="px-3 py-1 bg-surface-container rounded-full border border-outline-variant/20 font-label-md text-xs text-on-surface-variant flex items-center gap-1 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/40 transition-all cursor-pointer">
                   <span class="material-symbols-outlined text-[14px]">description</span> PDF
                 </span>
-                <span class="px-3 py-1 bg-surface-container rounded-full border border-outline-variant/20 font-label-md text-xs text-on-surface-variant flex items-center gap-1">
+                <span class="px-3 py-1 bg-surface-container rounded-full border border-outline-variant/20 font-label-md text-xs text-on-surface-variant flex items-center gap-1 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/40 transition-all cursor-pointer">
                   <span class="material-symbols-outlined text-[14px]">image</span> PNG/JPG
                 </span>
-                <span class="px-3 py-1 bg-surface-container rounded-full border border-outline-variant/20 font-label-md text-xs text-on-surface-variant flex items-center gap-1">
+                <span class="px-3 py-1 bg-surface-container rounded-full border border-outline-variant/20 font-label-md text-xs text-on-surface-variant flex items-center gap-1 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/40 transition-all cursor-pointer">
                   <span class="material-symbols-outlined text-[14px]">movie</span> MP4
                 </span>
-                <span class="px-3 py-1 bg-surface-container rounded-full border border-outline-variant/20 font-label-md text-xs text-on-surface-variant flex items-center gap-1">
+                <span class="px-3 py-1 bg-surface-container rounded-full border border-outline-variant/20 font-label-md text-xs text-on-surface-variant flex items-center gap-1 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/40 transition-all cursor-pointer">
                   <span class="material-symbols-outlined text-[14px]">folder_zip</span> ZIP
                 </span>
               </div>
@@ -467,7 +524,7 @@ void main() {
 
           <!-- Action Area -->
           <div class="pt-6 mt-6 border-t border-outline-variant/20">
-            <button id="btnCreateDrop" class="w-full bg-primary text-on-primary hover:bg-primary-fixed transition-all duration-200 py-3.5 px-4 rounded-xl font-headline-sm text-sm font-semibold flex items-center justify-center gap-2 shadow-lg active:scale-[0.98]">
+            <button id="btnCreateDrop" class="btn-animated w-full bg-primary text-on-primary hover:bg-primary-fixed py-3.5 px-4 rounded-xl font-headline-sm text-sm font-semibold flex items-center justify-center gap-2 shadow-lg">
               <span class="material-symbols-outlined text-lg">rocket_launch</span>
               Start Upload & Get Code
             </button>
@@ -497,7 +554,7 @@ void main() {
           <div class="relative w-full">
             <input type="text" id="claimCodeInput" autocomplete="off" maxlength="9" placeholder="e.g. DROP-8492" spellcheck="false" class="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-xl px-4 py-3.5 font-label-md text-xl text-center text-primary tracking-[0.2em] uppercase focus:outline-none focus:border-primary transition-all" />
           </div>
-          <button id="btnLookupCode" type="submit" class="w-full bg-primary text-on-primary font-headline-sm text-base py-3.5 rounded-xl shadow-md hover:bg-primary-fixed transition-colors active:scale-[0.98] flex items-center justify-center gap-2 font-semibold">
+          <button id="btnLookupCode" type="submit" class="btn-animated w-full bg-primary text-on-primary font-headline-sm text-base py-3.5 rounded-xl shadow-md hover:bg-primary-fixed flex items-center justify-center gap-2 font-semibold">
             Retrieve
             <span class="material-symbols-outlined text-xl">arrow_forward</span>
           </button>
@@ -602,7 +659,7 @@ void main() {
 
             <!-- Sidebar Actions -->
             <div class="flex flex-col gap-2">
-              <button id="btnDownloadFile" class="w-full bg-primary text-on-primary font-headline-sm text-base py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-md hover:bg-primary-fixed transition-colors active:scale-[0.98]">
+              <button id="btnDownloadFile" class="btn-animated w-full bg-primary text-on-primary font-headline-sm text-base py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-md hover:bg-primary-fixed">
                 <span class="material-symbols-outlined">download</span> Download File
               </button>
               
@@ -669,19 +726,19 @@ void main() {
           
           <!-- Stats Row -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-surface-container-low border border-outline-variant/30 p-5 rounded-xl shadow-sm">
+            <div class="interactive-card bg-surface-container-low border border-outline-variant/30 p-5 rounded-2xl shadow-sm cursor-pointer">
               <p class="font-label-md text-xs text-on-surface-variant uppercase tracking-wider mb-2">Active Files</p>
               <p id="dashboardStatActive" class="font-headline-lg text-3xl font-bold text-on-surface">0</p>
             </div>
-            <div class="bg-surface-container-low border border-outline-variant/30 p-5 rounded-xl shadow-sm">
+            <div class="interactive-card bg-surface-container-low border border-outline-variant/30 p-5 rounded-2xl shadow-sm cursor-pointer">
               <p class="font-label-md text-xs text-on-surface-variant uppercase tracking-wider mb-2">Downloads</p>
               <p id="dashboardStatDownloads" class="font-headline-lg text-3xl font-bold text-on-surface">0</p>
             </div>
-            <div class="bg-surface-container-low border border-outline-variant/30 p-5 rounded-xl shadow-sm">
+            <div class="interactive-card bg-surface-container-low border border-outline-variant/30 p-5 rounded-2xl shadow-sm cursor-pointer">
               <p class="font-label-md text-xs text-on-surface-variant uppercase tracking-wider mb-2">Encrypted</p>
               <p id="dashboardStatEncrypted" class="font-headline-lg text-3xl font-bold text-on-surface">0</p>
             </div>
-            <div class="bg-surface-container-low border border-outline-variant/30 p-5 rounded-xl shadow-sm">
+            <div class="interactive-card bg-surface-container-low border border-outline-variant/30 p-5 rounded-2xl shadow-sm cursor-pointer">
               <p class="font-label-md text-xs text-on-surface-variant uppercase tracking-wider mb-2">Storage Used</p>
               <p id="dashboardStatStorage" class="font-headline-lg text-3xl font-bold text-on-surface">0 <span class="text-on-surface-variant text-sm font-normal">MB</span></p>
             </div>
@@ -719,33 +776,33 @@ void main() {
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Card 1 -->
-          <div class="bg-surface-container-low border border-outline-variant/20 rounded-xl p-8 hover:bg-surface-container transition-colors duration-300 group">
-            <div class="w-12 h-12 rounded-lg bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center mb-6 group-hover:border-primary/50 transition-colors">
-              <span class="material-symbols-outlined text-primary text-2xl">cloud_upload</span>
+          <div class="interactive-card bg-surface-container-low border border-outline-variant/20 rounded-2xl p-8 shadow-lg group cursor-pointer">
+            <div class="card-icon-box w-14 h-14 rounded-2xl bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center mb-6 shadow-sm">
+              <span class="material-symbols-outlined text-primary text-3xl">cloud_upload</span>
             </div>
-            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-3">1. Upload</h3>
+            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-3">1. Upload</h3>
             <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
               Drag and drop any file format. Our highly optimized network ensures rapid ingress, immediately preparing your data for secure transit.
             </p>
           </div>
           <!-- Card 2 -->
-          <div class="bg-surface-container-low border border-outline-variant/20 rounded-xl p-8 hover:bg-surface-container transition-colors duration-300 group relative overflow-hidden">
+          <div class="interactive-card bg-surface-container-low border border-outline-variant/20 rounded-2xl p-8 shadow-lg group relative overflow-hidden cursor-pointer">
             <!-- Subtle blur orb behind icon -->
             <div class="absolute top-8 left-8 w-16 h-16 bg-tertiary/10 blur-xl rounded-full"></div>
-            <div class="w-12 h-12 rounded-lg bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center mb-6 relative z-10 group-hover:border-tertiary/50 transition-colors">
-              <span class="material-symbols-outlined text-tertiary text-2xl">lock</span>
+            <div class="card-icon-box w-14 h-14 rounded-2xl bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center mb-6 relative z-10 shadow-sm">
+              <span class="material-symbols-outlined text-tertiary text-3xl">lock</span>
             </div>
-            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-3 relative z-10">2. Secure</h3>
+            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-3 relative z-10">2. Secure</h3>
             <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed relative z-10">
               Files are encrypted client-side with AES-256. We never hold the keys. Drops are temporary and self-destruct automatically.
             </p>
           </div>
           <!-- Card 3 -->
-          <div class="bg-surface-container-low border border-outline-variant/20 rounded-xl p-8 hover:bg-surface-container transition-colors duration-300 group">
-            <div class="w-12 h-12 rounded-lg bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center mb-6 group-hover:border-secondary/50 transition-colors">
-              <span class="material-symbols-outlined text-secondary text-2xl">qr_code</span>
+          <div class="interactive-card bg-surface-container-low border border-outline-variant/20 rounded-2xl p-8 shadow-lg group cursor-pointer">
+            <div class="card-icon-box w-14 h-14 rounded-2xl bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center mb-6 shadow-sm">
+              <span class="material-symbols-outlined text-secondary text-3xl">qr_code</span>
             </div>
-            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-3">3. Share</h3>
+            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-3">3. Share</h3>
             <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
               Generate an instant QR code, short link, or access pin. The recipient inputs the code and retrieves the payload effortlessly.
             </p>
@@ -762,20 +819,26 @@ void main() {
           <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">Built from the ground up for absolute security and maximum velocity.</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div class="bg-surface/60 backdrop-blur-md border border-outline-variant/30 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-            <i class="text-tertiary mb-6 w-10 h-10 inline-block" data-lucide="shield-check"></i>
-            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-4">Military Grade Encryption</h3>
-            <p class="font-body-md text-body-md text-on-surface-variant">End-to-end AES-256 encryption ensures your data remains unintelligible to everyone but the intended recipient.</p>
+          <div class="interactive-card bg-surface-container-low backdrop-blur-md border border-outline-variant/30 rounded-2xl p-8 shadow-xl cursor-pointer">
+            <div class="card-icon-box inline-block mb-4">
+              <i class="text-tertiary w-10 h-10 inline-block" data-lucide="shield-check"></i>
+            </div>
+            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-3">Military Grade Encryption</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">End-to-end AES-256 encryption ensures your data remains unintelligible to everyone but the intended recipient.</p>
           </div>
-          <div class="bg-surface/60 backdrop-blur-md border border-outline-variant/30 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-            <i class="text-secondary mb-6 w-10 h-10 inline-block" data-lucide="zap"></i>
-            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-4">Blazing Fast Infrastructure</h3>
-            <p class="font-body-md text-body-md text-on-surface-variant">Distributed edge nodes across the globe guarantee minimal latency and maximum throughput for gigabyte-scale transfers.</p>
+          <div class="interactive-card bg-surface-container-low backdrop-blur-md border border-outline-variant/30 rounded-2xl p-8 shadow-xl cursor-pointer">
+            <div class="card-icon-box inline-block mb-4">
+              <i class="text-secondary w-10 h-10 inline-block" data-lucide="zap"></i>
+            </div>
+            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-3">Blazing Fast Infrastructure</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">Distributed edge nodes across the globe guarantee minimal latency and maximum throughput for gigabyte-scale transfers.</p>
           </div>
-          <div class="bg-surface/60 backdrop-blur-md border border-outline-variant/30 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-            <i class="text-primary mb-6 w-10 h-10 inline-block" data-lucide="eye-off"></i>
-            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-4">Zero-Knowledge Privacy</h3>
-            <p class="font-body-md text-body-md text-on-surface-variant">We have zero visibility into your payloads. Keys are generated client-side, meaning even we can't access your drops.</p>
+          <div class="interactive-card bg-surface-container-low backdrop-blur-md border border-outline-variant/30 rounded-2xl p-8 shadow-xl cursor-pointer">
+            <div class="card-icon-box inline-block mb-4">
+              <i class="text-primary w-10 h-10 inline-block" data-lucide="eye-off"></i>
+            </div>
+            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-3">Zero-Knowledge Privacy</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">We have zero visibility into your payloads. Keys are generated client-side, meaning even we can't access your drops.</p>
           </div>
         </div>
       </div>

@@ -969,11 +969,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnShareAnotherModal) {
     btnShareAnotherModal.addEventListener('click', () => {
       document.getElementById('shareModal').classList.add('hidden');
-      if (window.location.pathname.includes('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
-        switchTab('upload');
-      } else {
-        window.location.href = 'index.html';
-      }
+      switchTab('upload');
     });
   }
 
@@ -982,7 +978,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnReturnDashboardModal) {
     btnReturnDashboardModal.addEventListener('click', () => {
       document.getElementById('shareModal').classList.add('hidden');
-      window.location.href = 'drops.html';
+      switchTab('drops');
     });
   }
 
@@ -995,8 +991,6 @@ document.addEventListener('DOMContentLoaded', () => {
       claimInput.value = codeParam.toUpperCase();
       switchTab('claim');
       lookupClaimCode(codeParam);
-    } else if (!window.location.pathname.includes('retrieve.html')) {
-      window.location.href = `retrieve.html?code=${encodeURIComponent(codeParam)}`;
     }
   }
 
