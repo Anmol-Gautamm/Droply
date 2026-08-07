@@ -282,8 +282,22 @@ function switchTab(tabId) {
   document.querySelectorAll('.tab-content').forEach(content => {
     content.classList.toggle('active', content.id === `tab-${tabId}`);
   });
+
   if (tabId === 'drops') {
     renderMyDrops();
+  }
+
+  // Smooth Auto-Scroll to the active tab screen
+  const targetTab = document.getElementById(`tab-${tabId}`);
+  if (targetTab) {
+    const navHeaderHeight = 70;
+    const elementTop = targetTab.getBoundingClientRect().top + window.pageYOffset;
+    const targetScrollPosition = Math.max(0, elementTop - navHeaderHeight);
+
+    window.scrollTo({
+      top: targetScrollPosition,
+      behavior: 'smooth'
+    });
   }
 }
 
