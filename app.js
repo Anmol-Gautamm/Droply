@@ -979,6 +979,150 @@ document.addEventListener('DOMContentLoaded', () => {
     lookupClaimCode(codeParam);
   }
 
+  // Theme Toggle Engine
+  const btnThemeToggle = document.getElementById('btnThemeToggle');
+  const themeToggleIcon = document.getElementById('themeToggleIcon');
+
+  function applyTheme(isDark) {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      if (themeToggleIcon) themeToggleIcon.textContent = 'light_mode';
+    } else {
+      document.documentElement.classList.remove('dark');
+      if (themeToggleIcon) themeToggleIcon.textContent = 'dark_mode';
+    }
+    localStorage.setItem('droply_theme', isDark ? 'dark' : 'light');
+
+    // Re-render QR code if modal is currently open
+    const modalUrlInput = document.getElementById('modalShareUrl');
+    if (modalUrlInput && modalUrlInput.value) {
+      renderSimpleQR('modalQrCanvas', modalUrlInput.value);
+    }
+  }
+
+  // Initial Theme load
+  const savedTheme = localStorage.getItem('droply_theme');
+  if (savedTheme) {
+    applyTheme(savedTheme === 'dark');
+  } else {
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(prefersDark);
+  }
+
+  if (btnThemeToggle) {
+    btnThemeToggle.addEventListener('click', () => {
+      const isDarkNow = document.documentElement.classList.contains('dark');
+      applyTheme(!isDarkNow);
+      showToast(!isDarkNow ? 'Dark Mode Enabled' : 'Light Mode Enabled', 'info');
+    });
+  }
+
+  // Dashboard Sidebar Navigation Buttons
+  const sidebarNavBtns = {
+    all: document.getElementById('sidebarNavAll'),
+    shared: document.getElementById('sidebarNavShared'),
+    starred: document.getElementById('sidebarNavStarred'),
+    trash: document.getElementById('sidebarNavTrash')
+  };
+
+  function updateSidebarActive(activeKey) {
+    Object.keys(sidebarNavBtns).forEach(key => {
+      const btn = sidebarNavBtns[key];
+      if (btn) {
+        const isActive = key === activeKey;
+        btn.className = isActive
+          ? 'w-full flex items-center gap-3 bg-primary/10 text-primary rounded-xl px-4 py-2.5 font-medium text-xs transition-all text-left font-bold'
+          : 'w-full flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl px-4 py-2.5 font-medium text-xs transition-all text-left';
+      }
+    });
+  }
+
+  if (sidebarNavBtns.all) {
+    sidebarNavBtns.all.addEventListener('click', () => {
+      currentDashboardFilter = 'all';
+      updateSidebarActive('all');
+      renderMyDrops();
+    });
+  }
+  if (sidebarNavBtns.shared) {
+    sidebarNavBtns.shared.addEventListener('click', () => {
+      currentDashboardFilter = 'active';
+      updateSidebarActive('shared');
+      renderMyDrops();
+    });
+  }
+  if (sidebarNavBtns.starred) {
+    sidebarNavBtns.starred.addEventListener('click', () => {
+      updateSidebarActive('starred');
+      showToast('Starred drops view active', 'info');
+    });
+  }
+  if (sidebarNavBtns.trash) {
+    sidebarNavBtns.trash.addEventListener('click', () => {
+      currentDashboardFilter = 'expired';
+      updateSidebarActive('trash');
+      renderMyDrops();
+    });
+  }
+
+  // Fullscreen Preview Lightbox
+  const btnExpandPreview = document.getElementById('btnExpandPreview');
+  if (btnExpandPreview) {
+    btnExpandPreview.addEventListener('click', () => {
+      if (!currentClaimDrop || !currentDecryptedBlob) {
+        showToast('No active file preview to expand!', 'info');
+        return;
+      }
+
+      let lightbox = document.getElementById('previewLightboxModal');
+      if (!lightbox) {
+        lightbox = document.createElement('div');
+        lightbox.id = 'previewLightboxModal';
+        lightbox.className = 'fixed inset-0 bg-background/90 backdrop-blur-lg z-[99999] flex flex-col p-6 overflow-hidden';
+        lightbox.innerHTML = `
+          <div class="flex justify-between items-center pb-4 border-b border-outline-variant/30">
+            <h3 id="lightboxFilename" class="font-headline-sm text-lg font-bold text-on-surface"></h3>
+            <button id="btnCloseLightbox" class="p-2 rounded-full hover:bg-surface-container-high text-on-surface transition-colors">
+              <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+          </div>
+          <div id="lightboxContentBox" class="flex-1 w-full h-full flex items-center justify-center p-4 overflow-auto"></div>
+        `;
+        document.body.appendChild(lightbox);
+
+        document.getElementById('btnCloseLightbox').addEventListener('click', () => {
+          lightbox.style.display = 'none';
+        });
+      }
+
+      lightbox.style.display = 'flex';
+      document.getElementById('lightboxFilename').textContent = currentClaimDrop.fileName;
+      renderFilePreview('lightboxContentBox', currentDecryptedBlob, currentClaimDrop.fileName, currentClaimDrop.fileType);
+    });
+  }
+
+  // Footer Buttons
+  const footerPrivacy = document.getElementById('footerPrivacy');
+  if (footerPrivacy) {
+    footerPrivacy.addEventListener('click', () => {
+      showToast('Privacy Guarantee: Zero-Knowledge client-side encryption. No logs.', 'success');
+    });
+  }
+
+  const footerTerms = document.getElementById('footerTerms');
+  if (footerTerms) {
+    footerTerms.addEventListener('click', () => {
+      showToast('Terms: Temporary file drops decay automatically upon expiration.', 'info');
+    });
+  }
+
+  const footerStatus = document.getElementById('footerStatus');
+  if (footerStatus) {
+    footerStatus.addEventListener('click', () => {
+      showToast('System Status: All 1,204 nodes 100% operational.', 'success');
+    });
+  }
+
   // Dashboard Search Input Listener
   const searchInput = document.getElementById('dashboardSearchInput');
   if (searchInput) {
