@@ -248,10 +248,14 @@
       50% { transform: translateY(-8px); }
     }
 
-    /* Floating Header Auto-Hide/Reveal Transitions */
+    /* Floating Header Auto-Hide/Reveal Transitions & Glassmorphism Blur */
     #floatingHeader {
       transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
       will-change: transform, opacity;
+    }
+    #floatingHeader > div {
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
     }
     .header-hidden {
       transform: translateY(-140%) !important;
@@ -271,7 +275,7 @@
 
   <!-- Floating Glassmorphism Header -->
   <header id="floatingHeader" class="fixed top-4 left-0 right-0 z-50 px-4">
-    <div class="max-w-5xl mx-auto bg-surface/75 dark:bg-surface-container-low/75 backdrop-blur-2xl border border-white/10 dark:border-outline-variant/30 rounded-full px-5 py-2.5 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.4)] flex justify-between items-center relative overflow-hidden group">
+    <div class="max-w-5xl mx-auto bg-surface/80 dark:bg-surface-container-low/85 border border-white/20 dark:border-white/10 rounded-full px-5 py-2.5 shadow-[0_20px_50px_rgba(0,0,0,0.5),0_0_25px_rgba(99,102,241,0.15)] flex justify-between items-center relative overflow-hidden group">
       
       <!-- Ambient Glow Behind Logo -->
       <div class="absolute -top-10 left-1/4 w-32 h-20 bg-primary/20 rounded-full blur-2xl pointer-events-none"></div>
