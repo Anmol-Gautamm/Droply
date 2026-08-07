@@ -1119,7 +1119,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const footerStatus = document.getElementById('footerStatus');
   if (footerStatus) {
     footerStatus.addEventListener('click', () => {
-      showToast('System Status: All 1,204 nodes 100% operational.', 'success');
+      showToast('System Status: Client-side Engine Ready & Operational.', 'success');
     });
   }
 
