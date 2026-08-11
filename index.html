@@ -67,13 +67,13 @@
           },
           "fontFamily": {
             "headline-sm": ["Geist"],
-            "label-md": ["JetBrains Mono"],
+            "label-md": ["Geist", "Inter", "sans-serif"],
             "headline-md": ["Geist"],
             "body-md": ["Geist"],
             "headline-lg-mobile": ["Geist"],
             "headline-lg": ["Geist"],
             "display-lg": ["Geist"],
-            "label-sm": ["JetBrains Mono"],
+            "label-sm": ["Geist", "Inter", "sans-serif"],
             "body-lg": ["Geist"]
           },
           "fontSize": {
@@ -116,25 +116,25 @@
     }
 
     html.dark {
-      --bg-background: #131315;
-      --bg-surface: #131315;
-      --bg-surface-dim: #131315;
-      --bg-surface-bright: #39393b;
-      --bg-surface-container-lowest: #0e0e10;
-      --bg-surface-container-low: #1c1b1d;
-      --bg-surface-container: #201f22;
-      --bg-surface-container-high: #2a2a2c;
-      --bg-surface-container-highest: #353437;
-      --text-on-surface: #e5e1e4;
-      --text-on-surface-variant: #c7c4d7;
-      --border-outline: #908fa0;
-      --border-outline-variant: #464554;
-      --color-primary: #c0c1ff;
-      --color-primary-fixed: #e1e0ff;
-      --color-primary-container: #312e81;
-      --text-on-primary-container: #e0e7ff;
-      --color-secondary: #4cd7f6;
-      --color-tertiary: #4edea3;
+      --bg-background: #0B0C10;
+      --bg-surface: #111218;
+      --bg-surface-dim: #0D0E12;
+      --bg-surface-bright: #1F2029;
+      --bg-surface-container-lowest: #08090C;
+      --bg-surface-container-low: #14151C;
+      --bg-surface-container: #1A1B24;
+      --bg-surface-container-high: #222430;
+      --bg-surface-container-highest: #2B2D3C;
+      --text-on-surface: #F3F4F6;
+      --text-on-surface-variant: #9CA3AF;
+      --border-outline: #4B5563;
+      --border-outline-variant: #374151;
+      --color-primary: #6366F1;
+      --color-primary-fixed: #4F46E5;
+      --color-primary-container: #312E81;
+      --text-on-primary-container: #E0E7FF;
+      --color-secondary: #0EA5E9;
+      --color-tertiary: #10B981;
     }
 
     * {
@@ -180,19 +180,23 @@
     }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+
+    /* Navigation Tab Pills */
     .nav-tab-btn {
-      color: #A1A1AA;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-family: 'Geist', sans-serif !important;
+      font-weight: 600 !important;
+      color: #9CA3AF !important;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }
     .nav-tab-btn:hover {
-      color: #FFFFFF;
-      background-color: rgba(255, 255, 255, 0.12);
+      color: #FFFFFF !important;
+      background-color: rgba(255, 255, 255, 0.12) !important;
     }
     .nav-tab-btn.active {
       color: #FFFFFF !important;
-      background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.25) !important;
-      box-shadow: 0 4px 18px rgba(99, 102, 241, 0.5);
+      background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.6), 0 0 12px rgba(129, 140, 248, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
     }
     .dropzone-container.drag-active {
       border-color: var(--color-primary) !important;
@@ -223,11 +227,17 @@
       box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
     }
 
-    /* Button Hover Shimmer & Lift */
+    /* Primary Animated Button System */
     .btn-animated {
       position: relative;
       overflow: hidden;
-      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, filter 0.25s ease;
+      font-family: 'Geist', sans-serif !important;
+      font-weight: 600 !important;
+      background: linear-gradient(135deg, #6366F1 0%, #4F46E5 50%, #4338CA 100%) !important;
+      color: #FFFFFF !important;
+      border: 1px solid rgba(255, 255, 255, 0.3) !important;
+      box-shadow: 0 8px 24px -4px rgba(99, 102, 241, 0.5), 0 0 15px rgba(99, 102, 241, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, background 0.25s ease !important;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       transform: translateZ(0);
@@ -239,7 +249,7 @@
       left: -60%;
       width: 50%;
       height: 200%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
       transform: rotate(25deg);
       transition: left 0.6s ease;
     }
@@ -247,11 +257,41 @@
       left: 140%;
     }
     .btn-animated:hover {
-      transform: translateY(-3px) translateZ(0);
-      box-shadow: 0 12px 28px -6px rgba(99, 102, 241, 0.45);
+      background: linear-gradient(135deg, #818CF8 0%, #6366F1 50%, #4F46E5 100%) !important;
+      transform: translateY(-3px) translateZ(0) !important;
+      box-shadow: 0 14px 35px -4px rgba(99, 102, 241, 0.75), 0 0 25px rgba(129, 140, 248, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
     }
     .btn-animated:active {
-      transform: translateY(1px) translateZ(0);
+      transform: translateY(1px) translateZ(0) !important;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
+    }
+
+    /* Secondary Glassmorphism Outline Button System */
+    .btn-secondary-outline {
+      position: relative;
+      overflow: hidden;
+      font-family: 'Geist', sans-serif !important;
+      font-weight: 600 !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      border: 1px solid rgba(99, 102, 241, 0.4) !important;
+      color: #F3F4F6 !important;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, background-color 0.25s ease, border-color 0.25s ease !important;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform: translateZ(0);
+    }
+    .btn-secondary-outline:hover {
+      background: rgba(99, 102, 241, 0.2) !important;
+      border-color: rgba(129, 140, 248, 0.75) !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 10px 28px -4px rgba(99, 102, 241, 0.45), 0 0 18px rgba(99, 102, 241, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+      transform: translateY(-3px) translateZ(0) !important;
+    }
+    .btn-secondary-outline:active {
+      transform: translateY(1px) translateZ(0) !important;
     }
 
     /* Dropzone Floating Cloud Animation */
@@ -461,7 +501,7 @@ void main() {
             <span class="material-symbols-outlined text-2xl">upload_file</span>
             Upload Files
           </button>
-          <button id="heroBtnRetrieve" class="btn-animated bg-transparent border border-outline-variant text-on-surface font-headline-sm text-headline-sm py-4 px-8 rounded-xl hover:bg-surface-container hover:border-outline flex items-center justify-center gap-2">
+          <button id="heroBtnRetrieve" class="btn-secondary-outline font-headline-sm text-headline-sm py-4 px-8 rounded-xl flex items-center justify-center gap-2">
             <span class="material-symbols-outlined text-2xl">download</span>
             Retrieve Drop
           </button>
@@ -739,10 +779,10 @@ void main() {
               </button>
               
               <div class="flex gap-2">
-                <button id="btnCopyLinkSidebar" class="flex-1 bg-transparent border border-outline-variant/30 text-primary font-body-md text-xs py-2.5 rounded-lg flex items-center justify-center gap-1 hover:bg-surface-container-high hover:border-outline-variant/50 transition-all">
+                <button id="btnCopyLinkSidebar" class="flex-1 btn-secondary-outline py-2.5 rounded-xl flex items-center justify-center gap-1.5 text-xs">
                   <span class="material-symbols-outlined text-sm">content_copy</span> Copy Link
                 </button>
-                <button id="btnShareAgainSidebar" class="flex-1 bg-transparent border border-outline-variant/30 text-primary font-body-md text-xs py-2.5 rounded-lg flex items-center justify-center gap-1 hover:bg-surface-container-high hover:border-outline-variant/50 transition-all">
+                <button id="btnShareAgainSidebar" class="flex-1 btn-secondary-outline py-2.5 rounded-xl flex items-center justify-center gap-1.5 text-xs">
                   <span class="material-symbols-outlined text-sm">share</span> Share Again
                 </button>
               </div>
@@ -1002,7 +1042,7 @@ void main() {
         <button id="btnShareAnotherModal" class="btn-animated w-full py-3.5 bg-primary text-on-primary font-headline-sm text-sm rounded-xl hover:bg-primary-fixed shadow-md flex justify-center items-center gap-2 font-semibold">
           <span class="material-symbols-outlined text-base">add_circle</span> Share Another File
         </button>
-        <button id="btnReturnDashboardModal" class="w-full py-2.5 border border-outline-variant/30 text-on-surface hover:bg-surface-container-highest transition-colors rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5">
+        <button id="btnReturnDashboardModal" class="btn-secondary-outline w-full py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5">
           <span class="material-symbols-outlined text-sm">arrow_back</span> Return to Web / Dashboard
         </button>
       </div>
