@@ -542,19 +542,34 @@ function openShareModal(drop) {
   renderSimpleQR('modalQrCanvas', shareUrl);
 }
 
-function renderSimpleQR(containerId, text) {
+function renderSimpleQR(containerId, text, options = {}) {
   const container = document.getElementById(containerId);
   if (!container) return;
   container.innerHTML = '';
+  if (!text) return;
+
+  const width = options.width || 120;
+  const height = options.height || 120;
+  const colorDark = options.colorDark || '#0044ff';
+  const colorLight = options.colorLight || '#ffffff';
+
+  let correctLevel = 1;
+  if (window.QRCode && window.QRCode.CorrectLevel) {
+    correctLevel = window.QRCode.CorrectLevel.L;
+    if (options.correctLevel && window.QRCode.CorrectLevel[options.correctLevel.toUpperCase()] !== undefined) {
+      correctLevel = window.QRCode.CorrectLevel[options.correctLevel.toUpperCase()];
+    }
+  }
 
   try {
     if (typeof window.QRCode === 'function') {
       new window.QRCode(container, {
         text: text,
-        width: 120,
-        height: 120,
-        colorDark: '#000000',
-        colorLight: '#ffffff'
+        width: width,
+        height: height,
+        colorDark: colorDark,
+        colorLight: colorLight,
+        correctLevel: correctLevel
       });
     } else {
       console.warn('window.QRCode is not loaded yet');
@@ -1259,8 +1274,180 @@ document.addEventListener('DOMContentLoaded', () => {
     lastScrollY = currentScrollY;
   }, { passive: true });
 
-  // Initial Recent Codes render
+  // Initial Recent Codes & QR Studio render
   renderRecentCodes();
+  initQRStudio();
 
   updateActiveBadge();
 });
+
+// --- Universal QR Code Studio Controller ---
+function initQRStudio() {
+  const qrInput = document.getElementById('qrStudioInput');
+  const fillPicker = document.getElementById('qrColorFillPicker');
+  const backPicker = document.getElementById('qrColorBackPicker');
+  const sizeSlider = document.getElementById('qrSizeSlider');
+  const sizeVal = document.getElementById('qrSizeVal');
+  const errSelect = document.getElementById('qrErrLevelSelect');
+  const outputContainer = document.getElementById('qrStudioOutput');
+  
+  const btnGenerate = document.getElementById('btnGenerateStudioQR');
+  const btnDownload = document.getElementById('btnDownloadStudioQR');
+  const btnCopy = document.getElementById('btnCopyStudioQR');
+  const btnShare = document.getElementById('btnShareStudioQR');
+
+  const presetLinkedin = document.getElementById('qrPresetLinkedin');
+  const presetDroply = document.getElementById('qrPresetDroply');
+  const presetWebsite = document.getElementById('qrPresetWebsite');
+  const presetText = document.getElementById('qrPresetText');
+
+  const linkedinUrl = "https://www.linkedin.com/in/ayush-gautam-9baa14248?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3B4c5TkR0kTD%2BC0ij4DYeDXw%3D%3D";
+
+  if (!qrInput || !outputContainer) return;
+
+  // Pre-fill default with LinkedIn URL from Python prompt
+  if (!qrInput.value) {
+    qrInput.value = linkedinUrl;
+  }
+
+  function updateQR() {
+    const text = qrInput.value.trim() || linkedinUrl;
+    const colorDark = fillPicker ? fillPicker.value : '#0044ff';
+    const colorLight = backPicker ? backPicker.value : '#ffffff';
+    const size = sizeSlider ? parseInt(sizeSlider.value, 10) : 220;
+    const correctLevel = errSelect ? errSelect.value : 'L';
+
+    if (sizeVal) sizeVal.textContent = `${size}px`;
+
+    renderSimpleQR('qrStudioOutput', text, {
+      width: size,
+      height: size,
+      colorDark: colorDark,
+      colorLight: colorLight,
+      correctLevel: correctLevel
+    });
+  }
+
+  // Live input listeners
+  if (qrInput) qrInput.addEventListener('input', updateQR);
+  if (fillPicker) fillPicker.addEventListener('input', updateQR);
+  if (backPicker) backPicker.addEventListener('input', updateQR);
+  if (sizeSlider) sizeSlider.addEventListener('input', updateQR);
+  if (errSelect) errSelect.addEventListener('change', updateQR);
+
+  // Fill Color Presets
+  document.querySelectorAll('.qr-color-fill-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const color = btn.dataset.color;
+      if (fillPicker) fillPicker.value = color;
+      updateQR();
+    });
+  });
+
+  // Back Color Presets
+  document.querySelectorAll('.qr-color-back-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const color = btn.dataset.color;
+      if (backPicker) backPicker.value = color;
+      updateQR();
+    });
+  });
+
+  // Presets
+  if (presetLinkedin) {
+    presetLinkedin.addEventListener('click', () => {
+      qrInput.value = linkedinUrl;
+      if (fillPicker) fillPicker.value = '#0044ff';
+      if (backPicker) backPicker.value = '#ffffff';
+      updateQR();
+      showToast('LinkedIn Preset Loaded (Blue/White)', 'info');
+    });
+  }
+
+  if (presetDroply) {
+    presetDroply.addEventListener('click', () => {
+      qrInput.value = window.location.href;
+      if (fillPicker) fillPicker.value = '#4f46e5';
+      updateQR();
+      showToast('Drop Share Preset Loaded', 'info');
+    });
+  }
+
+  if (presetWebsite) {
+    presetWebsite.addEventListener('click', () => {
+      qrInput.value = 'https://';
+      qrInput.focus();
+      updateQR();
+    });
+  }
+
+  if (presetText) {
+    presetText.addEventListener('click', () => {
+      qrInput.value = 'Droply - Drop files. Share instantly.';
+      updateQR();
+    });
+  }
+
+  if (btnGenerate) {
+    btnGenerate.addEventListener('click', () => {
+      updateQR();
+      showToast('Custom QR Code Generated!', 'success');
+    });
+  }
+
+  if (btnDownload) {
+    btnDownload.addEventListener('click', () => {
+      const canvas = document.querySelector('#qrStudioOutput canvas');
+      const img = document.querySelector('#qrStudioOutput img');
+      let dataUrl = null;
+      if (canvas) dataUrl = canvas.toDataURL('image/png');
+      else if (img) dataUrl = img.src;
+
+      if (dataUrl) {
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        const isLinkedin = qrInput.value.includes('linkedin');
+        a.download = isLinkedin ? 'linkedin_qr.png' : `qr_code_${Date.now()}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast('QR Code downloaded as PNG!', 'success');
+      } else {
+        showToast('Failed to download QR image', 'error');
+      }
+    });
+  }
+
+  if (btnCopy) {
+    btnCopy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(qrInput.value);
+        showToast('Content copied to clipboard!', 'success');
+      } catch (err) {
+        showToast('Failed to copy to clipboard', 'error');
+      }
+    });
+  }
+
+  if (btnShare) {
+    btnShare.addEventListener('click', async () => {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'QR Code Link',
+            text: 'Scan or click this link:',
+            url: qrInput.value
+          });
+        } catch (e) {
+          // ignore share cancel
+        }
+      } else {
+        navigator.clipboard.writeText(qrInput.value);
+        showToast('Link copied to clipboard for sharing', 'info');
+      }
+    });
+  }
+
+  // Initial render
+  updateQR();
+}
