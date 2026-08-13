@@ -94,19 +94,19 @@
 
   <style>
     :root {
-      --bg-background: #fbf9f7;
+      --bg-background: #f8fafc;
       --bg-surface: #ffffff;
-      --bg-surface-dim: #f5f3f2;
+      --bg-surface-dim: #f1f5f9;
       --bg-surface-bright: #ffffff;
       --bg-surface-container-lowest: #ffffff;
-      --bg-surface-container-low: #f5f3f2;
-      --bg-surface-container: #efedec;
-      --bg-surface-container-high: #e9e8e6;
-      --bg-surface-container-highest: #e4e2e1;
-      --text-on-surface: #1b1c1b;
-      --text-on-surface-variant: #454843;
-      --border-outline: #757873;
-      --border-outline-variant: #c5c7c1;
+      --bg-surface-container-low: #f8fafc;
+      --bg-surface-container: #f1f5f9;
+      --bg-surface-container-high: #e2e8f0;
+      --bg-surface-container-highest: #cbd5e1;
+      --text-on-surface: #0f172a;
+      --text-on-surface-variant: #475569;
+      --border-outline: #64748b;
+      --border-outline-variant: #cbd5e1;
       --color-primary: #4f46e5;
       --color-primary-fixed: #4338ca;
       --color-primary-container: #eef2ff;
@@ -185,18 +185,18 @@
     .nav-tab-btn {
       font-family: 'Geist', sans-serif !important;
       font-weight: 600 !important;
-      color: #9CA3AF !important;
+      color: var(--text-on-surface-variant) !important;
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }
     .nav-tab-btn:hover {
-      color: #FFFFFF !important;
-      background-color: rgba(255, 255, 255, 0.12) !important;
+      color: var(--text-on-surface) !important;
+      background-color: var(--bg-surface-container-high) !important;
     }
     .nav-tab-btn.active {
       color: #FFFFFF !important;
       background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%) !important;
       border: 1px solid rgba(255, 255, 255, 0.35) !important;
-      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.6), 0 0 12px rgba(129, 140, 248, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5), 0 0 12px rgba(129, 140, 248, 0.3) !important;
     }
     .dropzone-container.drag-active {
       border-color: var(--color-primary) !important;
@@ -272,23 +272,35 @@
       overflow: hidden;
       font-family: 'Geist', sans-serif !important;
       font-weight: 600 !important;
-      background: rgba(255, 255, 255, 0.06) !important;
-      border: 1px solid rgba(99, 102, 241, 0.4) !important;
-      color: #F3F4F6 !important;
+      background: rgba(99, 102, 241, 0.08) !important;
+      border: 1px solid rgba(99, 102, 241, 0.35) !important;
+      color: #3730A3 !important;
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
       transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, background-color 0.25s ease, border-color 0.25s ease !important;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       transform: translateZ(0);
     }
+    html.dark .btn-secondary-outline {
+      background: rgba(255, 255, 255, 0.06) !important;
+      border: 1px solid rgba(99, 102, 241, 0.4) !important;
+      color: #F3F4F6 !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+    }
     .btn-secondary-outline:hover {
+      background: rgba(99, 102, 241, 0.18) !important;
+      border-color: rgba(99, 102, 241, 0.6) !important;
+      color: #1E1B4B !important;
+      box-shadow: 0 10px 28px -4px rgba(99, 102, 241, 0.25) !important;
+      transform: translateY(-3px) translateZ(0) !important;
+    }
+    html.dark .btn-secondary-outline:hover {
       background: rgba(99, 102, 241, 0.2) !important;
       border-color: rgba(129, 140, 248, 0.75) !important;
       color: #FFFFFF !important;
       box-shadow: 0 10px 28px -4px rgba(99, 102, 241, 0.45), 0 0 18px rgba(99, 102, 241, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
-      transform: translateY(-3px) translateZ(0) !important;
     }
     .btn-secondary-outline:active {
       transform: translateY(1px) translateZ(0) !important;
@@ -349,7 +361,7 @@
       </a>
 
       <!-- Navigation Tabs Center Pill Bar (iPhone Notch Style) -->
-      <nav class="hidden md:flex items-center gap-1.5 bg-[#0B0C10] p-1.5 rounded-full border border-white/15 shadow-[inset_0_2px_8px_rgba(0,0,0,0.8),0_4px_25px_rgba(0,0,0,0.5)]">
+      <nav class="hidden md:flex items-center gap-1.5 bg-surface-container-highest/80 dark:bg-[#0B0C10] p-1.5 rounded-full border border-outline-variant/30 dark:border-white/15 shadow-sm dark:shadow-[inset_0_2px_8px_rgba(0,0,0,0.8),0_4px_25px_rgba(0,0,0,0.5)]">
         <button class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-full font-label-md text-xs font-semibold active" data-tab="upload">
           <span class="material-symbols-outlined text-base">cloud_upload</span>
           <span>Upload</span>
@@ -417,6 +429,7 @@ void main() {
 varying vec2 v_texCoord;
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform float u_isDark;
 
 void main() {
     vec2 uv = v_texCoord;
@@ -425,16 +438,18 @@ void main() {
     float color2 = cos(uv.y * 2.0 - motion) * 0.5 + 0.5;
     float color3 = sin((uv.x + uv.y) * 4.0 + motion * 0.5) * 0.5 + 0.5;
     
-    vec3 indigo = vec3(0.388, 0.4, 0.945);
-    vec3 cyan = vec3(0.024, 0.714, 0.831);
-    vec3 deepBg = vec3(0.035, 0.035, 0.043);
+    vec3 indigo = mix(vec3(0.40, 0.42, 0.95), vec3(0.388, 0.4, 0.945), u_isDark);
+    vec3 cyan = mix(vec3(0.02, 0.65, 0.85), vec3(0.024, 0.714, 0.831), u_isDark);
+    vec3 bg = mix(vec3(0.97, 0.975, 0.99), vec3(0.035, 0.035, 0.043), u_isDark);
     
-    vec3 finalColor = mix(deepBg, indigo, color1 * 0.15);
-    finalColor = mix(finalColor, cyan, color2 * 0.1);
-    finalColor = mix(finalColor, indigo, color3 * 0.05);
+    vec3 finalColor = mix(bg, indigo, color1 * (u_isDark > 0.5 ? 0.15 : 0.08));
+    finalColor = mix(finalColor, cyan, color2 * (u_isDark > 0.5 ? 0.10 : 0.06));
+    finalColor = mix(finalColor, indigo, color3 * (u_isDark > 0.5 ? 0.05 : 0.04));
     
-    float grid = (step(0.99, fract(uv.x * 20.0)) + step(0.99, fract(uv.y * 20.0))) * 0.03;
-    finalColor += grid;
+    float gridOpacity = u_isDark > 0.5 ? 0.03 : 0.04;
+    float gridVal = (step(0.99, fract(uv.x * 20.0)) + step(0.99, fract(uv.y * 20.0))) * gridOpacity;
+    vec3 gridColor = mix(vec3(0.2, 0.25, 0.4), vec3(1.0), u_isDark);
+    finalColor = mix(finalColor, gridColor, gridVal);
     
     gl_FragColor = vec4(finalColor, 1.0);
 }`;
@@ -458,6 +473,7 @@ void main() {
           const uTime = gl.getUniformLocation(prog, 'u_time');
           const uRes = gl.getUniformLocation(prog, 'u_resolution');
           const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+          const uIsDark = gl.getUniformLocation(prog, 'u_isDark');
 
           let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
           window.addEventListener('mousemove', (event) => {
@@ -473,6 +489,8 @@ void main() {
           function render(t) {
             if (typeof ResizeObserver === 'undefined') syncSize();
             gl.viewport(0, 0, canvas.width, canvas.height);
+            const isDark = document.documentElement.classList.contains('dark') ? 1.0 : 0.0;
+            if (uIsDark) gl.uniform1f(uIsDark, isDark);
             if (uTime) gl.uniform1f(uTime, t * 0.001);
             if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
             if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
@@ -485,8 +503,8 @@ void main() {
       </div>
 
       <!-- Ambient Overlay & Grid -->
-      <div class="absolute inset-0 bg-background/60 backdrop-blur-[2px] -z-10"></div>
-      <div class="absolute inset-0 bg-grid-pattern -z-10 mix-blend-overlay"></div>
+      <div class="absolute inset-0 bg-background/40 dark:bg-background/60 backdrop-blur-[2px] -z-10"></div>
+      <div class="absolute inset-0 bg-grid-pattern -z-10 mix-blend-overlay opacity-30 dark:opacity-100"></div>
       
       <div class="max-w-container-max-width mx-auto px-gutter relative z-10 w-full flex flex-col items-center text-center py-xl">
         <h1 class="font-display-lg text-display-lg md:text-[64px] leading-tight font-bold text-on-surface mb-6 max-w-4xl tracking-tight">
