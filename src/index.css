@@ -5,21 +5,27 @@
   --bg-card: rgba(18, 26, 43, 0.75);
   --bg-card-hover: rgba(26, 37, 61, 0.85);
   --bg-input: rgba(13, 20, 33, 0.9);
-  
+
   --border-glass: rgba(255, 255, 255, 0.08);
   --border-glass-glow: rgba(6, 182, 212, 0.4);
-  
-  --color-primary: #06b6d4;      /* Neon Cyan */
-  --color-secondary: #8b5cf6;    /* Electric Purple */
-  --color-accent: #ec4899;       /* Hot Pink */
-  --color-success: #10b981;      /* Emerald Green */
-  --color-warning: #f59e0b;      /* Amber */
-  --color-danger: #ef4444;       /* Rose Red */
-  
+
+  --color-primary: #06b6d4;
+  /* Neon Cyan */
+  --color-secondary: #8b5cf6;
+  /* Electric Purple */
+  --color-accent: #ec4899;
+  /* Hot Pink */
+  --color-success: #10b981;
+  /* Emerald Green */
+  --color-warning: #f59e0b;
+  /* Amber */
+  --color-danger: #ef4444;
+  /* Rose Red */
+
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --text-subtle: #64748b;
-  
+
   --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -27,7 +33,7 @@
   --shadow-glow: 0 0 25px rgba(6, 182, 212, 0.25);
   --shadow-purple-glow: 0 0 25px rgba(139, 92, 246, 0.25);
   --shadow-card: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
-  
+
   --radius-lg: 20px;
   --radius-md: 12px;
   --radius-sm: 8px;
@@ -46,7 +52,7 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   overflow-x: hidden;
-  background-image: 
+  background-image:
     radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.12) 0%, transparent 45%),
     radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.12) 0%, transparent 45%),
     radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.05) 0%, transparent 60%);
@@ -58,19 +64,27 @@ body {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-dark);
 }
+
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 
 /* Typography Utilities */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
   letter-spacing: -0.02em;
 }
@@ -101,6 +115,7 @@ h1, h2, h3, h4, h5, h6 {
 .glass-card-interactive {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .glass-card-interactive:hover {
   background: var(--bg-card-hover);
   border-color: rgba(6, 182, 212, 0.3);
@@ -262,7 +277,8 @@ h1, h2, h3, h4, h5, h6 {
   overflow: hidden;
 }
 
-.dropzone-container:hover, .dropzone-container.drag-active {
+.dropzone-container:hover,
+.dropzone-container.drag-active {
   border-color: var(--color-primary);
   background: rgba(6, 182, 212, 0.05);
   box-shadow: var(--shadow-glow);
@@ -283,8 +299,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes pulse-glow {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.4); }
-  100% { transform: scale(1.05); box-shadow: 0 0 20px 10px rgba(6, 182, 212, 0); }
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.4);
+  }
+
+  100% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px 10px rgba(6, 182, 212, 0);
+  }
 }
 
 /* Options Grid */
@@ -311,7 +334,8 @@ h1, h2, h3, h4, h5, h6 {
   gap: 6px;
 }
 
-.option-select, .option-input {
+.option-select,
+.option-input {
   background: var(--bg-input);
   border: 1px solid var(--border-glass);
   color: var(--text-main);
@@ -323,7 +347,8 @@ h1, h2, h3, h4, h5, h6 {
   transition: all 0.2s ease;
 }
 
-.option-select:focus, .option-input:focus {
+.option-select:focus,
+.option-input:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
 }
@@ -415,7 +440,8 @@ h1, h2, h3, h4, h5, h6 {
   object-fit: contain;
 }
 
-.preview-audio, .preview-video {
+.preview-audio,
+.preview-video {
   width: 100%;
   border-radius: 8px;
 }
@@ -460,8 +486,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes slide-up {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Table styling for My Drops */
@@ -496,6 +529,7 @@ h1, h2, h3, h4, h5, h6 {
     gap: 16px;
     padding: 16px;
   }
+
   .code-badge {
     font-size: 1.6rem;
     padding: 10px 16px;
