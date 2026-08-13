@@ -16,17 +16,17 @@ export default function ShareModal({ drop, onClose, addToast }) {
       origin: { y: 0.6 }
     });
 
-    // Render QR Code onto canvas
+    // Render QR Code onto canvas with high contrast and quiet zone
     if (canvasRef.current) {
       QRCode.toCanvas(
         canvasRef.current,
         shareUrl,
         {
-          width: 160,
+          width: 200,
           margin: 2,
           color: {
-            dark: '#06b6d4',
-            light: '#090d16'
+            dark: '#000000',
+            light: '#ffffff'
           }
         },
         (err) => {

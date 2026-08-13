@@ -19,8 +19,20 @@
   <!-- Lucide Icons Library -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Standalone QRCode Engine -->
+  <!-- Standalone QRCode Engine (Local + CDN Fallback) -->
   <script src="qrcode.min.js"></script>
+  <script>
+    // Developer LAN IP helper for testing QR scans across devices on local Wi-Fi.
+    // Set to your PC's local network IP (e.g. '192.168.1.100') when testing with a phone on dev server.
+    // In production deployments, this automatically uses the live public domain.
+    window.DROPLY_LAN_IP = null;
+
+    if (typeof window.QRCode !== 'function') {
+      var fallbackScript = document.createElement('script');
+      fallbackScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+      document.head.appendChild(fallbackScript);
+    }
+  </script>
 
   <script id="tailwind-config">
     tailwind.config = {
@@ -912,6 +924,14 @@ void main() {
               class="bg-surface-container p-2.5 rounded-lg border border-outline-variant/20 flex items-center gap-2">
               <span class="material-symbols-outlined text-tertiary text-sm">lock</span>
               <span class="font-label-sm text-xs text-on-surface">End-to-End Encrypted (AES-256)</span>
+            </div>
+
+            <!-- Interactive QR Code for Easy Mobile Scan -->
+            <div id="sidebarQrSection" class="bg-surface-container-lowest p-3.5 rounded-xl border border-outline-variant/30 flex flex-col items-center gap-2">
+              <span class="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm text-primary">qr_code_2</span> Mobile QR Scan
+              </span>
+              <div id="sidebarQrCanvas" class="flex items-center justify-center p-1.5 bg-white rounded-lg shadow-sm border border-slate-200 min-h-[110px] min-w-[110px]"></div>
             </div>
           </div>
 

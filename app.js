@@ -524,12 +524,40 @@ async function processCreateDrop() {
   }
 }
 
+/**
+ * Generates the shareable URL for a drop code.
+ *
+ * DEVELOPER & LOCAL NETWORK TESTING NOTE:
+ * When testing on localhost (127.0.0.1:5500), scanning a QR code with a phone's camera
+ * will attempt to connect to 127.0.0.1 on the phone itself (which fails).
+ * For local network testing across multiple devices, set window.DROPLY_LAN_IP = '192.168.X.X'
+ * in index.html, or access your dev server using your PC's Wi-Fi / LAN IP address directly.
+ *
+ * In production deployments, window.location.origin dynamically resolves to your
+ * live HTTPS domain (e.g. https://droply.app/index.html?code=DROP-XXXX).
+ */
+function getShareableUrl(code) {
+  let origin = window.location.origin;
+
+  // Optional local network LAN IP override for mobile phone testing during development
+  if ((origin.includes('127.0.0.1') || origin.includes('localhost')) && window.DROPLY_LAN_IP) {
+    const port = window.location.port ? `:${window.location.port}` : '';
+    origin = `http://${window.DROPLY_LAN_IP}${port}`;
+  }
+
+  const pathname = window.location.pathname.endsWith('.html') || window.location.pathname.endsWith('/')
+    ? window.location.pathname
+    : `${window.location.pathname}/`;
+
+  return `${origin}${pathname}?code=${encodeURIComponent(code)}`;
+}
+
 // Modal handling
 function openShareModal(drop) {
   const modal = document.getElementById('shareModal');
   if (!modal) return;
   document.getElementById('modalCodeBadge').textContent = drop.code;
-  const shareUrl = `${window.location.origin}${window.location.pathname}?code=${drop.code}`;
+  const shareUrl = getShareableUrl(drop.code);
   document.getElementById('modalShareUrl').value = shareUrl;
 
   const expiryTitle = document.getElementById('modalExpiryTitle');
@@ -554,15 +582,32 @@ function renderSimpleQR(containerId, text) {
   if (!container) return;
   container.innerHTML = '';
 
+  if (!text) {
+    console.warn('renderSimpleQR: No URL text provided');
+    return;
+  }
+
   try {
     if (typeof window.QRCode === 'function') {
+      // 200x200 canvas dimension for high-DPI retina sharpness and effortless scanning
       new window.QRCode(container, {
         text: text,
-        width: 120,
-        height: 120,
+        width: 200,
+        height: 200,
         colorDark: '#000000',
-        colorLight: '#ffffff'
+        colorLight: '#ffffff',
+        correctLevel: window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.H : 2
       });
+
+      // Ensure canvas element inside container is styled and visibly rendered
+      const canvas = container.querySelector('canvas');
+      if (canvas) {
+        canvas.style.display = 'block';
+        canvas.style.maxWidth = '100%';
+        canvas.style.height = 'auto';
+        canvas.style.borderRadius = '6px';
+        canvas.style.margin = '0 auto';
+      }
     } else {
       console.warn('window.QRCode is not loaded yet');
     }
@@ -689,6 +734,10 @@ async function lookupClaimCode(codeToSearch) {
     currentDecryptedBlob = drop.fileBlob;
     renderFilePreview('claimPreviewBox', drop.fileBlob, drop.fileName, drop.fileType);
   }
+
+  // Render QR Code for instant mobile scanning
+  const shareUrl = getShareableUrl(drop.code);
+  renderSimpleQR('sidebarQrCanvas', shareUrl);
 
   resultContainer.style.display = 'flex';
 
