@@ -236,6 +236,13 @@ async function deleteDrop(code) {
 function showToast(message, type = 'info') {
   const container = document.getElementById('toastContainer');
   if (!container) return;
+
+  // Limit toasts to a maximum of 2 notices at a time
+  const existingToasts = container.querySelectorAll('div');
+  if (existingToasts.length >= 2) {
+    existingToasts[0].remove();
+  }
+
   const toast = document.createElement('div');
   toast.className = 'bg-surface-container-high border border-primary/40 text-on-surface px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 font-medium text-sm transition-all duration-300 transform translate-y-2';
   

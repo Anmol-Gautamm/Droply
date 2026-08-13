@@ -44,7 +44,10 @@ export default function App() {
 
   const addToast = (message, type = 'info') => {
     const id = Date.now() + Math.random();
-    setToasts((prev) => [...prev, { id, message, type }]);
+    setToasts((prev) => {
+      const updated = [...prev, { id, message, type }];
+      return updated.length > 2 ? updated.slice(updated.length - 2) : updated;
+    });
     setTimeout(() => {
       removeToast(id);
     }, 4000);
