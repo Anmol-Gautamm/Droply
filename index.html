@@ -658,9 +658,24 @@ void main() {
           class="hero-title-animated font-display-lg text-display-lg md:text-[64px] leading-tight font-bold mb-6 max-w-4xl tracking-tight">
           <span class="hero-text-part1">Drop files.</span> <span class="hero-text-part2">Share instantly.</span>
         </h1>
-        <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-10">
+        <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-4">
           Secure, temporary file sharing — powered by QR codes and short codes.
         </p>
+
+        <!-- Feature Indicators Row -->
+        <div class="flex items-center justify-center flex-wrap gap-2.5 sm:gap-4 mb-8 text-xs sm:text-sm font-label-md text-on-surface-variant/80 tracking-wide select-none">
+          <span class="inline-flex items-center gap-1.5 cursor-default transition-all duration-200 hover:-translate-y-[1px] hover:brightness-125 hover:text-on-surface">
+            <span>🔒</span> Encrypted
+          </span>
+          <span class="text-outline-variant/40 text-[10px] select-none">•</span>
+          <span class="inline-flex items-center gap-1.5 cursor-default transition-all duration-200 hover:-translate-y-[1px] hover:brightness-125 hover:text-on-surface">
+            <span>⚡</span> Instant
+          </span>
+          <span class="text-outline-variant/40 text-[10px] select-none">•</span>
+          <span class="inline-flex items-center gap-1.5 cursor-default transition-all duration-200 hover:-translate-y-[1px] hover:brightness-125 hover:text-on-surface">
+            <span>⌛</span> Temporary
+          </span>
+        </div>
 
         <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           <button id="heroBtnUpload"
