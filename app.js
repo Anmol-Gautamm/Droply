@@ -723,9 +723,7 @@ async function lookupClaimCode(codeToSearch) {
     renderFilePreview('claimPreviewBox', drop.fileBlob, drop.fileName, drop.fileType);
   }
 
-  // Render QR Code for instant mobile scanning
-  const shareUrl = getShareableUrl(drop.code);
-  renderSimpleQR('sidebarQrCanvas', shareUrl);
+
 
   resultContainer.style.display = 'flex';
 
@@ -1063,29 +1061,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Download QR Code image
-  const btnDownloadQR = document.getElementById('btnDownloadQR');
-  if (btnDownloadQR) {
-    btnDownloadQR.addEventListener('click', () => {
-      const canvas = document.querySelector('#modalQrCanvas canvas');
-      const img = document.querySelector('#modalQrCanvas img');
-      let dataUrl = null;
-      if (canvas) dataUrl = canvas.toDataURL('image/png');
-      else if (img) dataUrl = img.src;
 
-      if (dataUrl) {
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = `drop-qr-${document.getElementById('modalCodeBadge').textContent || 'code'}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        showToast('QR Code image downloaded!', 'success');
-      } else {
-        showToast('QR Code image unavailable', 'error');
-      }
-    });
-  }
 
   // Share Another File Action
   const btnShareAnotherModal = document.getElementById('btnShareAnotherModal');
@@ -1131,11 +1107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     localStorage.setItem('droply_theme', isDark ? 'dark' : 'light');
 
-    // Re-render QR code if modal is currently open
-    const modalUrlInput = document.getElementById('modalShareUrl');
-    if (modalUrlInput && modalUrlInput.value) {
-      renderSimpleQR('modalQrCanvas', modalUrlInput.value);
-    }
+
   }
 
   // Initial Theme load
