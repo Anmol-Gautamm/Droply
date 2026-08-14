@@ -658,23 +658,24 @@ void main() {
           class="hero-title-animated font-display-lg text-display-lg md:text-[64px] leading-tight font-bold mb-6 max-w-4xl tracking-tight">
           <span class="hero-text-part1">Drop files.</span> <span class="hero-text-part2">Share instantly.</span>
         </h1>
-        <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-4">
-          Secure, temporary file sharing.
+        <p class="font-body-lg text-body-lg text-on-surface-variant/90 max-w-2xl mb-6 leading-relaxed">
+          End-to-end encrypted, lightning-fast file sharing built for absolute privacy.
         </p>
 
         <!-- Feature Indicators Row -->
-        <div class="flex items-center justify-center flex-wrap gap-2.5 sm:gap-4 mb-8 text-xs sm:text-sm font-label-md text-on-surface-variant/80 tracking-wide select-none">
-          <span class="inline-flex items-center gap-1.5 cursor-default transition-all duration-200 hover:-translate-y-[1px] hover:brightness-125 hover:text-on-surface">
-            <span>🔒</span> Encrypted
-          </span>
-          <span class="text-outline-variant/40 text-[10px] select-none">•</span>
-          <span class="inline-flex items-center gap-1.5 cursor-default transition-all duration-200 hover:-translate-y-[1px] hover:brightness-125 hover:text-on-surface">
-            <span>⚡</span> Instant
-          </span>
-          <span class="text-outline-variant/40 text-[10px] select-none">•</span>
-          <span class="inline-flex items-center gap-1.5 cursor-default transition-all duration-200 hover:-translate-y-[1px] hover:brightness-125 hover:text-on-surface">
-            <span>⌛</span> Temporary
-          </span>
+        <div class="shine-badge-container">
+          <div class="shine-badge shine-badge-1 shine-badge-encrypted">
+            <span class="text-base">🔒</span>
+            <span class="shine-text-encrypted">Encrypted</span>
+          </div>
+          <div class="shine-badge shine-badge-2 shine-badge-instant">
+            <span class="text-base">⚡</span>
+            <span class="shine-text-instant">Instant</span>
+          </div>
+          <div class="shine-badge shine-badge-3 shine-badge-temporary">
+            <span class="text-base">⌛</span>
+            <span class="shine-text-temporary">Temporary</span>
+          </div>
         </div>
 
         <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">

@@ -680,3 +680,141 @@ button {
     background-position: 0% 50%;
   }
 }
+
+/* Feature Indicators Shining Badge System */
+.shine-badge-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 2rem;
+  user-select: none;
+}
+
+.shine-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  background: rgba(16, 23, 38, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #f8fafc;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  cursor: default;
+}
+
+/* Light Reflection Sweep Across Badges */
+.shine-badge::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -150%;
+  width: 70%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.05) 80%,
+    transparent 100%
+  );
+  transform: rotate(25deg);
+  animation: badgeShineSweep 3.6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.shine-badge-1::after { animation-delay: 0s; }
+.shine-badge-2::after { animation-delay: 1.2s; }
+.shine-badge-3::after { animation-delay: 2.4s; }
+
+@keyframes badgeShineSweep {
+  0% {
+    left: -150%;
+  }
+  40% {
+    left: 200%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+/* Individual Neon Badge Themes & Hover Glows */
+.shine-badge-encrypted {
+  border-color: rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 12px rgba(16, 185, 129, 0.15);
+}
+.shine-badge-encrypted:hover {
+  border-color: rgba(16, 185, 129, 0.75);
+  box-shadow: 0 6px 22px rgba(16, 185, 129, 0.35), 0 0 20px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.shine-badge-instant {
+  border-color: rgba(6, 182, 212, 0.35);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 12px rgba(6, 182, 212, 0.15);
+}
+.shine-badge-instant:hover {
+  border-color: rgba(6, 182, 212, 0.75);
+  box-shadow: 0 6px 22px rgba(6, 182, 212, 0.35), 0 0 20px rgba(6, 182, 212, 0.4);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.shine-badge-temporary {
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 12px rgba(245, 158, 11, 0.15);
+}
+.shine-badge-temporary:hover {
+  border-color: rgba(245, 158, 11, 0.75);
+  box-shadow: 0 6px 22px rgba(245, 158, 11, 0.35), 0 0 20px rgba(245, 158, 11, 0.4);
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Shining Gradient Text Effect */
+.shine-text-encrypted {
+  background: linear-gradient(120deg, #a7f3d0 0%, #10b981 40%, #34d399 70%, #ffffff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shineTextGlow 3s ease-in-out infinite alternate;
+}
+
+.shine-text-instant {
+  background: linear-gradient(120deg, #a5f3fc 0%, #06b6d4 40%, #38bdf8 70%, #ffffff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shineTextGlow 3s ease-in-out 1s infinite alternate;
+}
+
+.shine-text-temporary {
+  background: linear-gradient(120deg, #fef08a 0%, #f59e0b 40%, #fbbf24 70%, #ffffff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shineTextGlow 3s ease-in-out 2s infinite alternate;
+}
+
+@keyframes shineTextGlow {
+  0% {
+    background-position: 0% 50%;
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
+  }
+  100% {
+    background-position: 100% 50%;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+  }
+}
