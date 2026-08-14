@@ -92,7 +92,7 @@ export default function DropZone({ onDropCreated, addToast }) {
           Drop & Share Anything
         </h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-          Drag a file to generate a 6-character sharing code, link & QR code instantly.
+          Drag a file to generate a 6-character sharing code & link instantly.
         </p>
       </div>
 

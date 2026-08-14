@@ -1,11 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import QRCode from 'qrcode';
+import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { Copy, QrCode, X, Check, Share2, ShieldAlert } from 'lucide-react';
+import { Copy, X, Check, Share2, ShieldAlert } from 'lucide-react';
 
 export default function ShareModal({ drop, onClose, addToast }) {
-  const canvasRef = useRef(null);
-
   const shareUrl = `${window.location.origin}${window.location.pathname}?code=${drop.code}`;
 
   useEffect(() => {
@@ -15,25 +12,6 @@ export default function ShareModal({ drop, onClose, addToast }) {
       spread: 70,
       origin: { y: 0.6 }
     });
-
-    // Render QR Code onto canvas with high contrast and quiet zone
-    if (canvasRef.current) {
-      QRCode.toCanvas(
-        canvasRef.current,
-        shareUrl,
-        {
-          width: 200,
-          margin: 2,
-          color: {
-            dark: '#000000',
-            light: '#ffffff'
-          }
-        },
-        (err) => {
-          if (err) console.error('QR code generation error:', err);
-        }
-      );
-    }
   }, [drop, shareUrl]);
 
   const copyToClipboard = (text, label) => {
@@ -116,13 +94,7 @@ export default function ShareModal({ drop, onClose, addToast }) {
           </div>
         </div>
 
-        {/* QR Code */}
-        <div style={{ textAlign: 'center', background: 'rgba(9, 13, 22, 0.8)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
-            <QrCode size={16} /> Scan with mobile camera:
-          </div>
-          <canvas ref={canvasRef} style={{ borderRadius: '8px', margin: '0 auto' }} />
-        </div>
+
 
         {drop.isEncrypted && (
           <div style={{

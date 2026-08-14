@@ -597,46 +597,6 @@ function openShareModal(drop) {
   }
 
   modal.classList.remove('hidden');
-  renderSimpleQR('modalQrCanvas', shareUrl);
-}
-
-function renderSimpleQR(containerId, text) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.innerHTML = '';
-
-  if (!text) {
-    console.warn('renderSimpleQR: No URL text provided');
-    return;
-  }
-
-  try {
-    if (typeof window.QRCode === 'function') {
-      // 200x200 canvas dimension for high-DPI retina sharpness and effortless scanning
-      new window.QRCode(container, {
-        text: text,
-        width: 200,
-        height: 200,
-        colorDark: '#000000',
-        colorLight: '#ffffff',
-        correctLevel: window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.H : 2
-      });
-
-      // Ensure canvas element inside container is styled and visibly rendered
-      const canvas = container.querySelector('canvas');
-      if (canvas) {
-        canvas.style.display = 'block';
-        canvas.style.maxWidth = '100%';
-        canvas.style.height = 'auto';
-        canvas.style.borderRadius = '6px';
-        canvas.style.margin = '0 auto';
-      }
-    } else {
-      console.warn('window.QRCode is not loaded yet');
-    }
-  } catch (err) {
-    console.error('QR rendering error:', err);
-  }
 }
 
 // Recent Codes Storage & Chip Management
