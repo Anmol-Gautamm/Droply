@@ -683,20 +683,52 @@ button {
 
 /* Feature Indicators Subtle Inline Text Shine Effect */
 .shine-text-inline {
-  background: linear-gradient(110deg, #94a3b8 0%, #ffffff 40%, #38bdf8 50%, #ffffff 60%, #94a3b8 100%);
-  background-size: 200% 100%;
+  background: linear-gradient(
+    110deg,
+    rgba(226, 232, 240, 0.8) 0%,
+    rgba(255, 255, 255, 1) 35%,
+    #38bdf8 50%,
+    #8b5cf6 65%,
+    rgba(226, 232, 240, 0.8) 100%
+  );
+  background-size: 250% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: shineTextInline 3.5s ease-in-out infinite;
+  animation: shineTextInline 3s linear infinite;
   display: inline;
 }
 
 @keyframes shineTextInline {
   0% {
-    background-position: 100% 0;
+    background-position: 250% 0;
   }
   100% {
-    background-position: -100% 0;
+    background-position: -250% 0;
   }
+}
+
+/* High-Legibility Elevated Hero Subtitle */
+.hero-subtitle {
+  font-size: 1.15rem;
+  line-height: 1.75;
+  color: #e2e8f0;
+  max-width: 42rem;
+  margin-bottom: 2.25rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+
+@media (min-width: 768px) {
+  .hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+}
+
+.hero-subtitle .highlight {
+  color: #38bdf8;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
 }
