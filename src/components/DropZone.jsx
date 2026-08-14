@@ -165,6 +165,10 @@ export default function DropZone({ onDropCreated, addToast }) {
                 <option value="10m">10 Minutes</option>
                 <option value="1h">1 Hour</option>
                 <option value="24h">24 Hours (Default)</option>
+                <option value="7d">7 Days</option>
+                <option value="30d">30 Days</option>
+                <option value="1y">1 Year (Long Term)</option>
+                <option value="never">Permanent (No Expiration)</option>
                 <option value="1time">Delete after 1 download</option>
               </select>
             </div>

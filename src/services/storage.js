@@ -55,6 +55,10 @@ export async function saveDrop({ fileBlob, fileName, fileSize, fileType, expiryT
   if (expiryType === '10m') expiresAt = now + 10 * 60 * 1000;
   else if (expiryType === '1h') expiresAt = now + 60 * 60 * 1000;
   else if (expiryType === '24h') expiresAt = now + 24 * 60 * 60 * 1000;
+  else if (expiryType === '7d') expiresAt = now + 7 * 24 * 60 * 60 * 1000;
+  else if (expiryType === '30d') expiresAt = now + 30 * 24 * 60 * 60 * 1000;
+  else if (expiryType === '1y') expiresAt = now + 365 * 24 * 60 * 60 * 1000;
+  else if (expiryType === 'never') expiresAt = null;
   // expiryType === '1time' -> expiresAt remains null, but deleted after 1 download
 
   const dropRecord = {

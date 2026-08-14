@@ -116,6 +116,10 @@ async function saveDrop({ fileBlob, fileName, fileSize, fileType, expiryType, is
   if (expiryType === '10m') expiresAt = now + 10 * 60 * 1000;
   else if (expiryType === '1h') expiresAt = now + 60 * 60 * 1000;
   else if (expiryType === '24h') expiresAt = now + 24 * 60 * 60 * 1000;
+  else if (expiryType === '7d') expiresAt = now + 7 * 24 * 60 * 60 * 1000;
+  else if (expiryType === '30d') expiresAt = now + 30 * 24 * 60 * 60 * 1000;
+  else if (expiryType === '1y') expiresAt = now + 365 * 24 * 60 * 60 * 1000;
+  else if (expiryType === 'never') expiresAt = null;
 
   const dropRecord = {
     code,
@@ -402,6 +406,7 @@ async function renderMyDrops() {
     let isExpired = false;
 
     if (drop.expiryType === '1time') expiryStr = '1-time download';
+    else if (drop.expiryType === 'never') expiryStr = 'Permanent';
     else if (drop.expiresAt) {
       const remainingMs = drop.expiresAt - Date.now();
       if (remainingMs <= 0) {
@@ -409,7 +414,9 @@ async function renderMyDrops() {
         isExpired = true;
       } else {
         const mins = Math.floor(remainingMs / (1000 * 60));
-        expiryStr = mins < 60 ? `${mins} mins` : `${Math.floor(mins/60)} hrs`;
+        if (mins < 60) expiryStr = `${mins} mins`;
+        else if (mins < 2880) expiryStr = `${Math.floor(mins / 60)} hrs`;
+        else expiryStr = `${Math.floor(mins / (60 * 24))} days`;
       }
     }
 
@@ -576,6 +583,11 @@ function openShareModal(drop) {
     if (drop.expiryType === '1time') expiryTitle.textContent = 'Expires after 1 download';
     else if (drop.expiryType === '10m') expiryTitle.textContent = 'Expires in 10 minutes';
     else if (drop.expiryType === '1h') expiryTitle.textContent = 'Expires in 1 hour';
+    else if (drop.expiryType === '24h') expiryTitle.textContent = 'Expires in 24 hours';
+    else if (drop.expiryType === '7d') expiryTitle.textContent = 'Expires in 7 days';
+    else if (drop.expiryType === '30d') expiryTitle.textContent = 'Expires in 30 days';
+    else if (drop.expiryType === '1y') expiryTitle.textContent = 'Expires in 1 year';
+    else if (drop.expiryType === 'never') expiryTitle.textContent = 'Permanent (No Expiration)';
     else expiryTitle.textContent = 'Expires in 24 hours';
   }
 
@@ -719,13 +731,18 @@ async function lookupClaimCode(codeToSearch) {
   if (drop.expiryType === '1time') {
     expiryText.textContent = '1-time download';
     expiryBar.style.width = '100%';
+  } else if (drop.expiryType === 'never') {
+    expiryText.textContent = 'Permanent (No Expiration)';
+    expiryBar.style.width = '100%';
   } else if (drop.expiresAt) {
     const totalMs = drop.expiresAt - drop.createdAt;
     const remainingMs = drop.expiresAt - Date.now();
     const pct = Math.max(5, Math.min(100, Math.round((remainingMs / totalMs) * 100)));
     expiryBar.style.width = `${pct}%`;
     const mins = Math.floor(remainingMs / (1000 * 60));
-    expiryText.textContent = mins < 60 ? `${mins} mins` : `${Math.floor(mins / 60)} hours`;
+    if (mins < 60) expiryText.textContent = `${mins} mins`;
+    else if (mins < 2880) expiryText.textContent = `${Math.floor(mins / 60)} hours`;
+    else expiryText.textContent = `${Math.floor(mins / (60 * 24))} days`;
   } else {
     expiryText.textContent = 'No expiry';
     expiryBar.style.width = '100%';
