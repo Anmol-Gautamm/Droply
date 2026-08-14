@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { UploadCloud, File, Lock, Clock, Sparkles, CheckCircle } from 'lucide-react';
+import { UploadCloud, File, Lock, Clock, Sparkles, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { encryptFile } from '../services/crypto';
 import { saveDrop } from '../services/storage';
 
@@ -9,6 +9,7 @@ export default function DropZone({ onDropCreated, addToast }) {
   const [expiryType, setExpiryType] = useState('24h');
   const [password, setPassword] = useState('');
   const [enablePassword, setEnablePassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const fileInputRef = useRef(null);
@@ -188,14 +189,36 @@ export default function DropZone({ onDropCreated, addToast }) {
               </div>
 
               {enablePassword && (
-                <input
-                  type="password"
-                  className="option-input"
-                  placeholder="Set secret password..."
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{ marginTop: '4px' }}
-                />
+                <div style={{ position: 'relative', marginTop: '4px', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="option-input"
+                    placeholder="Set secret password..."
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={{ width: '100%', paddingRight: '36px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    title={showPassword ? "Hide password" : "Show password"}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    style={{
+                      position: 'absolute',
+                      right: '8px',
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--text-muted, #94a3b8)',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               )}
             </div>
           </div>

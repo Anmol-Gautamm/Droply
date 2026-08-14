@@ -515,7 +515,18 @@ async function processCreateDrop() {
     document.getElementById('fileSelectionInfo').style.display = 'none';
     document.getElementById('dropPromptInfo').style.display = 'block';
     document.getElementById('optionsSection').style.display = 'none';
-    document.getElementById('passInput').value = '';
+    const passIn = document.getElementById('passInput');
+    if (passIn) {
+      passIn.value = '';
+      passIn.type = 'password';
+    }
+    const passIcon = document.getElementById('passVisibilityIcon');
+    if (passIcon) passIcon.textContent = 'visibility';
+    const toggleBtn = document.getElementById('togglePassVisibility');
+    if (toggleBtn) {
+      toggleBtn.setAttribute('title', 'Show password');
+      toggleBtn.setAttribute('aria-label', 'Show password');
+    }
     document.getElementById('enablePassCheck').checked = false;
     document.getElementById('passInputGroup').style.display = 'none';
   } catch (err) {
@@ -891,6 +902,47 @@ document.addEventListener('DOMContentLoaded', () => {
   if (passCheck) {
     passCheck.addEventListener('change', (e) => {
       document.getElementById('passInputGroup').style.display = e.target.checked ? 'block' : 'none';
+      if (!e.target.checked) {
+        const passIn = document.getElementById('passInput');
+        if (passIn) passIn.type = 'password';
+        const passIcon = document.getElementById('passVisibilityIcon');
+        if (passIcon) passIcon.textContent = 'visibility';
+        const toggleBtn = document.getElementById('togglePassVisibility');
+        if (toggleBtn) {
+          toggleBtn.setAttribute('title', 'Show password');
+          toggleBtn.setAttribute('aria-label', 'Show password');
+        }
+      }
+    });
+  }
+
+  // Password Visibility Toggle (Create Drop)
+  const togglePassBtn = document.getElementById('togglePassVisibility');
+  const passInput = document.getElementById('passInput');
+  const passVisibilityIcon = document.getElementById('passVisibilityIcon');
+  if (togglePassBtn && passInput && passVisibilityIcon) {
+    togglePassBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const isPassword = passInput.type === 'password';
+      passInput.type = isPassword ? 'text' : 'password';
+      passVisibilityIcon.textContent = isPassword ? 'visibility_off' : 'visibility';
+      togglePassBtn.setAttribute('title', isPassword ? 'Hide password' : 'Show password');
+      togglePassBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+    });
+  }
+
+  // Password Visibility Toggle (Unlock Drop)
+  const toggleUnlockPassBtn = document.getElementById('toggleUnlockPassVisibility');
+  const unlockPassInput = document.getElementById('unlockPassInput');
+  const unlockPassVisibilityIcon = document.getElementById('unlockPassVisibilityIcon');
+  if (toggleUnlockPassBtn && unlockPassInput && unlockPassVisibilityIcon) {
+    toggleUnlockPassBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const isPassword = unlockPassInput.type === 'password';
+      unlockPassInput.type = isPassword ? 'text' : 'password';
+      unlockPassVisibilityIcon.textContent = isPassword ? 'visibility_off' : 'visibility';
+      toggleUnlockPassBtn.setAttribute('title', isPassword ? 'Hide password' : 'Show password');
+      toggleUnlockPassBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
     });
   }
 

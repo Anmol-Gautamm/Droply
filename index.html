@@ -732,12 +732,18 @@ void main() {
                 </label>
 
                 <div id="passInputGroup" style="display: none;" class="mt-2">
-                  <div class="relative">
+                  <div class="relative flex items-center">
                     <span
-                      class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-base">key</span>
+                      class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-base select-none pointer-events-none">key</span>
                     <input type="password" id="passInput"
-                      class="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-xl py-2.5 pl-9 pr-4 text-on-surface text-xs focus:outline-none focus:border-primary transition-colors placeholder:text-outline"
+                      class="w-full bg-surface-container-lowest border border-outline-variant/40 rounded-xl py-2.5 pl-9 pr-10 text-on-surface text-xs focus:outline-none focus:border-primary transition-colors placeholder:text-outline"
                       placeholder="Enter secret password..." />
+                    <button type="button" id="togglePassVisibility" aria-label="Toggle password visibility"
+                      title="Show password"
+                      class="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 p-1 rounded-md transition-colors focus:outline-none flex items-center justify-center">
+                      <span id="passVisibilityIcon"
+                        class="material-symbols-outlined text-base leading-none select-none">visibility</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -834,11 +840,21 @@ void main() {
           <span class="material-symbols-outlined">lock</span> Password Protection Required
         </h4>
         <div class="flex gap-2">
-          <input type="password" id="unlockPassInput"
-            class="bg-surface-container border border-outline-variant text-on-surface rounded-lg px-4 py-2.5 text-sm flex-grow focus:border-tertiary outline-none"
-            placeholder="Enter secret password..." />
+          <div class="relative flex-grow flex items-center">
+            <span
+              class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-base select-none pointer-events-none">key</span>
+            <input type="password" id="unlockPassInput"
+              class="bg-surface-container border border-outline-variant text-on-surface rounded-lg pl-9 pr-10 py-2.5 text-sm w-full focus:border-tertiary outline-none transition-colors placeholder:text-outline"
+              placeholder="Enter secret password..." />
+            <button type="button" id="toggleUnlockPassVisibility" aria-label="Toggle password visibility"
+              title="Show password"
+              class="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 p-1 rounded-md transition-colors focus:outline-none flex items-center justify-center">
+              <span id="unlockPassVisibilityIcon"
+                class="material-symbols-outlined text-lg leading-none select-none">visibility</span>
+            </button>
+          </div>
           <button id="btnUnlockFile"
-            class="bg-tertiary text-on-tertiary font-semibold px-5 py-2.5 rounded-lg hover:bg-tertiary-fixed transition-colors flex items-center gap-1">
+            class="bg-tertiary text-on-tertiary font-semibold px-5 py-2.5 rounded-lg hover:bg-tertiary-fixed transition-colors flex items-center gap-1 shrink-0">
             <span class="material-symbols-outlined">key</span> Unlock
           </button>
         </div>
@@ -927,11 +943,15 @@ void main() {
             </div>
 
             <!-- Interactive QR Code for Easy Mobile Scan -->
-            <div id="sidebarQrSection" class="bg-surface-container-lowest p-3.5 rounded-xl border border-outline-variant/30 flex flex-col items-center gap-2">
-              <span class="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold flex items-center gap-1">
+            <div id="sidebarQrSection"
+              class="bg-surface-container-lowest p-3.5 rounded-xl border border-outline-variant/30 flex flex-col items-center gap-2">
+              <span
+                class="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold flex items-center gap-1">
                 <span class="material-symbols-outlined text-sm text-primary">qr_code_2</span> Mobile QR Scan
               </span>
-              <div id="sidebarQrCanvas" class="flex items-center justify-center p-1.5 bg-white rounded-lg shadow-sm border border-slate-200 min-h-[110px] min-w-[110px]"></div>
+              <div id="sidebarQrCanvas"
+                class="flex items-center justify-center p-1.5 bg-white rounded-lg shadow-sm border border-slate-200 min-h-[110px] min-w-[110px]">
+              </div>
             </div>
           </div>
 

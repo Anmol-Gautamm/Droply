@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Download, Lock, Key, AlertTriangle, FileCheck, Clock, Eye } from 'lucide-react';
+import { Search, Download, Lock, Key, AlertTriangle, FileCheck, Clock, Eye, EyeOff } from 'lucide-react';
 import { getDrop, incrementDownload } from '../services/storage';
 import { decryptFile } from '../services/crypto';
 import FilePreview from './FilePreview';
@@ -9,6 +9,7 @@ export default function ClaimFile({ initialCode, addToast }) {
   const [dropData, setDropData] = useState(null);
   const [decryptedBlob, setDecryptedBlob] = useState(null);
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [notFound, setNotFound] = useState(false);
@@ -201,14 +202,36 @@ export default function ClaimFile({ initialCode, addToast }) {
               </div>
 
               <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="password"
-                  className="option-input"
-                  placeholder="Enter secret password..."
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{ width: '100%' }}
-                />
+                <div style={{ position: 'relative', flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="option-input"
+                    placeholder="Enter secret password..."
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={{ width: '100%', paddingRight: '36px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    title={showPassword ? "Hide password" : "Show password"}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    style={{
+                      position: 'absolute',
+                      right: '8px',
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--text-muted, #94a3b8)',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
                 <button type="submit" className="btn-primary" style={{ flexShrink: 0 }}>
                   <Key size={16} /> Unlock
                 </button>
