@@ -394,9 +394,79 @@
       pointer-events: none !important;
     }
 
-    .header-visible {
-      transform: translateY(0) !important;
-      opacity: 1 !important;
+    /* Hero Title Interactive Animated Hover System */
+    .hero-title-animated {
+      cursor: pointer;
+      position: relative;
+      display: inline-block;
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.45s ease;
+      user-select: none;
+    }
+
+    .hero-title-animated .hero-text-part1 {
+      color: var(--text-on-surface);
+      transition: color 0.5s ease, background-position 0.5s ease, filter 0.5s ease;
+      display: inline-block;
+    }
+
+    .hero-title-animated .hero-text-part2 {
+      color: var(--color-primary);
+      transition: color 0.5s ease, background-position 0.5s ease, filter 0.5s ease;
+      display: inline-block;
+    }
+
+    .hero-title-animated::after {
+      content: '';
+      display: block;
+      height: 4px;
+      width: 0%;
+      margin: 10px auto 0;
+      background: linear-gradient(90deg, #38bdf8, #6366f1, #a855f7, #ec4899, #f59e0b);
+      border-radius: 9999px;
+      transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+      opacity: 0;
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.8);
+    }
+
+    /* Interactive Hover Animation State */
+    .hero-title-animated:hover {
+      transform: translateY(-3px) scale(1.025);
+      filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.5)) drop-shadow(0 0 12px rgba(56, 189, 248, 0.4));
+    }
+
+    .hero-title-animated:hover .hero-text-part1 {
+      background: linear-gradient(120deg, #38bdf8 0%, #6366f1 25%, #a855f7 50%, #ec4899 75%, #38bdf8 100%);
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: heroGradientShift 3s linear infinite;
+    }
+
+    .hero-title-animated:hover .hero-text-part2 {
+      background: linear-gradient(120deg, #ec4899 0%, #a855f7 25%, #6366f1 50%, #38bdf8 75%, #f59e0b 100%);
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: heroGradientShift 3s linear infinite reverse;
+    }
+
+    .hero-title-animated:hover::after {
+      width: 85%;
+      opacity: 1;
+    }
+
+    @keyframes heroGradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
     }
   </style>
 </head>
@@ -585,12 +655,11 @@ void main() {
       <div
         class="max-w-container-max-width mx-auto px-gutter relative z-10 w-full flex flex-col items-center text-center py-xl">
         <h1
-          class="font-display-lg text-display-lg md:text-[64px] leading-tight font-bold text-on-surface mb-6 max-w-4xl tracking-tight">
-          Drop files. <span class="text-primary">Share instantly.</span>
+          class="hero-title-animated font-display-lg text-display-lg md:text-[64px] leading-tight font-bold mb-6 max-w-4xl tracking-tight">
+          <span class="hero-text-part1">Drop files.</span> <span class="hero-text-part2">Share instantly.</span>
         </h1>
         <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-10">
-          Secure, encrypted, temporary file sharing with QR codes, short codes, and lightning-fast downloads. Engineered
-          for speed and privacy.
+          Secure, temporary file sharing — powered by QR codes and short codes.
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
