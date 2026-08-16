@@ -44,9 +44,9 @@ export function generateShareCode() {
 }
 
 /**
- * Save a new file drop into IndexedDB
+ * Save a new file drop into IndexedDB (supports up to 5 files)
  */
-export async function saveDrop({ fileBlob, fileName, fileSize, fileType, expiryType, isEncrypted, password }) {
+export async function saveDrop({ files, fileBlob, fileName, fileSize, fileType, expiryType, isEncrypted, password }) {
   const db = await openDB();
   const code = generateShareCode();
   const now = Date.now();
@@ -61,12 +61,21 @@ export async function saveDrop({ fileBlob, fileName, fileSize, fileType, expiryT
   else if (expiryType === 'never') expiresAt = null;
   // expiryType === '1time' -> expiresAt remains null, but deleted after 1 download
 
+  // Standardize files array (up to 5 files)
+  const filesList = Array.isArray(files) && files.length > 0
+    ? files.slice(0, 5)
+    : [{ fileName: fileName || 'file', fileSize: fileSize || 0, fileType: fileType || '', fileBlob: fileBlob }];
+
+  const totalSize = filesList.reduce((acc, f) => acc + (f.fileSize || 0), 0);
+  const primaryName = filesList.length === 1 ? filesList[0].fileName : `${filesList.length} Files Bundle`;
+
   const dropRecord = {
     code,
-    fileName,
-    fileSize,
-    fileType,
-    fileBlob,
+    fileName: primaryName,
+    fileSize: totalSize,
+    fileType: filesList.length === 1 ? filesList[0].fileType : 'application/bundle',
+    fileBlob: filesList[0].fileBlob,
+    files: filesList,
     createdAt: now,
     expiresAt,
     expiryType,
@@ -114,6 +123,16 @@ export async function getDrop(code) {
         deleteDrop(formattedCode);
         resolve({ expired: true });
         return;
+      }
+
+      // Normalize files array for backwards compatibility
+      if (!drop.files || !Array.isArray(drop.files)) {
+        drop.files = [{
+          fileName: drop.fileName,
+          fileSize: drop.fileSize,
+          fileType: drop.fileType,
+          fileBlob: drop.fileBlob
+        }];
       }
 
       resolve(drop);

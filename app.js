@@ -107,7 +107,7 @@ async function decryptFile(encryptedBlob, password, mimeType) {
   return new Blob([decryptedBuffer], { type: mimeType || 'application/octet-stream' });
 }
 
-async function saveDrop({ fileBlob, fileName, fileSize, fileType, expiryType, isEncrypted }) {
+async function saveDrop({ files, fileBlob, fileName, fileSize, fileType, expiryType, isEncrypted }) {
   const db = await openDB();
   const code = generateShareCode();
   const now = Date.now();
@@ -121,12 +121,21 @@ async function saveDrop({ fileBlob, fileName, fileSize, fileType, expiryType, is
   else if (expiryType === '1y') expiresAt = now + 365 * 24 * 60 * 60 * 1000;
   else if (expiryType === 'never') expiresAt = null;
 
+  // Standardize files array (supports up to 5 files)
+  const filesList = Array.isArray(files) && files.length > 0
+    ? files.slice(0, 5)
+    : [{ fileName: fileName || 'file', fileSize: fileSize || 0, fileType: fileType || '', fileBlob: fileBlob }];
+
+  const totalSize = filesList.reduce((acc, f) => acc + (f.fileSize || 0), 0);
+  const primaryName = filesList.length === 1 ? filesList[0].fileName : `${filesList.length} Files Bundle`;
+
   const dropRecord = {
     code,
-    fileName,
-    fileSize,
-    fileType,
-    fileBlob,
+    fileName: primaryName,
+    fileSize: totalSize,
+    fileType: filesList.length === 1 ? filesList[0].fileType : 'application/bundle',
+    fileBlob: filesList[0].fileBlob,
+    files: filesList,
     createdAt: now,
     expiresAt,
     expiryType,
@@ -162,6 +171,17 @@ async function getDrop(code) {
         deleteDrop(formattedCode);
         return resolve({ expired: true });
       }
+
+      // Normalize files array for backwards compatibility
+      if (!drop.files || !Array.isArray(drop.files)) {
+        drop.files = [{
+          fileName: drop.fileName,
+          fileSize: drop.fileSize,
+          fileType: drop.fileType,
+          fileBlob: drop.fileBlob
+        }];
+      }
+
       resolve(drop);
     };
     request.onerror = () => reject(request.error);
@@ -280,10 +300,11 @@ function getFileIcon(type, filename) {
   return 'description';
 }
 
-// Global App State
-let selectedFile = null;
+// Global App State (Supports up to 5 files)
+let selectedFiles = [];
 let currentClaimDrop = null;
-let currentDecryptedBlob = null;
+let currentDecryptedFiles = [];
+let currentPreviewIndex = 0;
 
 // Tab Management
 function switchTab(tabId) {
@@ -431,7 +452,7 @@ async function renderMyDrops() {
         </td>
         <td class="py-3 px-4">
           <div class="font-semibold text-on-surface break-all">${drop.fileName}</div>
-          <div class="text-xs text-on-surface-variant">${formatBytes(drop.fileSize)}</div>
+          <div class="text-xs text-on-surface-variant">${drop.files && drop.files.length > 1 ? `${drop.files.length} Files • ` : ''}${formatBytes(drop.fileSize)}</div>
         </td>
         <td class="py-3 px-4">
           <span class="font-label-md text-xs bg-surface-container-high px-2.5 py-1 rounded-lg text-primary font-bold">${drop.code}</span>
@@ -479,54 +500,53 @@ window.handleDeleteDrop = async function(code) {
   updateActiveBadge();
 };
 
-// Handle Drop creation
+// Handle Drop creation with up to 5 files
 async function processCreateDrop() {
-  if (!selectedFile) {
-    showToast('Please select or drop a file first!', 'error');
+  if (!selectedFiles || selectedFiles.length === 0) {
+    showToast('Please select or drop at least 1 file (up to 5 files)!', 'error');
     return;
   }
 
-  let expiryType = document.getElementById('expirySelect').value;
+  const expirySelect = document.getElementById('expirySelect');
+  let expiryType = expirySelect ? expirySelect.value : '24h';
   const checkDeleteAfter = document.getElementById('checkDeleteAfter');
   if (checkDeleteAfter && checkDeleteAfter.checked) {
     expiryType = '1time';
   }
 
-  const enablePass = document.getElementById('enablePassCheck').checked;
-  const password = document.getElementById('passInput').value;
+  const enablePassCheck = document.getElementById('enablePassCheck');
+  const enablePass = enablePassCheck ? enablePassCheck.checked : false;
+  const passInput = document.getElementById('passInput');
+  const password = passInput ? passInput.value : '';
 
   try {
-    let fileToStore = selectedFile;
-    let isEncrypted = false;
-
-    if (enablePass && password.trim()) {
-      fileToStore = await encryptFile(selectedFile, password.trim());
-      isEncrypted = true;
+    const processedFiles = [];
+    for (const file of selectedFiles) {
+      let fileBlob = file;
+      if (enablePass && password.trim()) {
+        fileBlob = await encryptFile(file, password.trim());
+      }
+      processedFiles.push({
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        fileBlob: fileBlob
+      });
     }
 
     const drop = await saveDrop({
-      fileBlob: fileToStore,
-      fileName: selectedFile.name,
-      fileSize: selectedFile.size,
-      fileType: selectedFile.type,
+      files: processedFiles,
       expiryType,
-      isEncrypted
+      isEncrypted: enablePass && Boolean(password.trim())
     });
 
-    showToast('File dropped successfully! Share code generated.', 'success');
+    showToast(`Drop created successfully with ${processedFiles.length} file(s)!`, 'success');
     openShareModal(drop);
     updateActiveBadge();
 
     // Reset upload state
-    selectedFile = null;
-    const fileSelectionInfo = document.getElementById('fileSelectionInfo');
-    if (fileSelectionInfo) fileSelectionInfo.style.display = 'none';
-
-    const dropPromptInfo = document.getElementById('dropPromptInfo');
-    if (dropPromptInfo) dropPromptInfo.style.display = 'block';
-
-    const optionsSection = document.getElementById('optionsSection');
-    if (optionsSection) optionsSection.style.display = 'none';
+    selectedFiles = [];
+    renderSelectedFilesUI();
 
     const passIn = document.getElementById('passInput');
     if (passIn) {
@@ -660,6 +680,77 @@ function renderRecentCodes() {
   });
 }
 
+// Helper to download a single Blob
+function downloadSingleBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename || 'download';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// Render multi-file preview tabs & sidebar controls
+function renderClaimFileSwitcher() {
+  const tabsContainer = document.getElementById('claimFileTabsContainer');
+  const tabsList = document.getElementById('claimFileTabsList');
+  const downloadBtnText = document.getElementById('downloadBtnText');
+  const btnDownloadAll = document.getElementById('btnDownloadAllFiles');
+
+  if (!currentDecryptedFiles || currentDecryptedFiles.length === 0 || !currentClaimDrop) return;
+
+  const currentFile = currentDecryptedFiles[currentPreviewIndex] || currentDecryptedFiles[0];
+
+  const previewWindowFilename = document.getElementById('previewWindowFilename');
+  if (previewWindowFilename) previewWindowFilename.textContent = currentFile.fileName;
+
+  const sidebarFileName = document.getElementById('sidebarFileName');
+  if (sidebarFileName) sidebarFileName.textContent = currentClaimDrop.fileName;
+
+  const sidebarFileIcon = document.getElementById('sidebarFileIcon');
+  if (sidebarFileIcon) sidebarFileIcon.textContent = getFileIcon(currentFile.fileType, currentFile.fileName);
+
+  if (downloadBtnText) {
+    downloadBtnText.textContent = currentDecryptedFiles.length > 1
+      ? `Download File (${currentPreviewIndex + 1}/${currentDecryptedFiles.length})`
+      : 'Download File';
+  }
+
+  if (btnDownloadAll) {
+    btnDownloadAll.style.display = currentDecryptedFiles.length > 1 ? 'flex' : 'none';
+    btnDownloadAll.innerHTML = `<span class="material-symbols-outlined text-base">download_for_offline</span> Download All (${currentDecryptedFiles.length} Files)`;
+  }
+
+  if (tabsContainer && tabsList) {
+    if (currentDecryptedFiles.length > 1) {
+      tabsContainer.style.display = 'flex';
+      tabsList.innerHTML = '';
+      currentDecryptedFiles.forEach((file, idx) => {
+        const tabBtn = document.createElement('button');
+        tabBtn.type = 'button';
+        const isActive = idx === currentPreviewIndex;
+        tabBtn.className = isActive
+          ? 'px-3 py-1 bg-primary text-on-primary rounded-lg text-xs font-semibold shrink-0 shadow-sm flex items-center gap-1.5'
+          : 'px-3 py-1 bg-surface-container-high text-on-surface-variant hover:text-on-surface rounded-lg text-xs font-medium shrink-0 hover:bg-surface-container-highest flex items-center gap-1.5 transition-colors';
+        tabBtn.innerHTML = `
+          <span class="material-symbols-outlined text-[13px]">${getFileIcon(file.fileType, file.fileName)}</span>
+          <span class="truncate max-w-[140px]">${file.fileName}</span>
+        `;
+        tabBtn.addEventListener('click', () => {
+          currentPreviewIndex = idx;
+          renderClaimFileSwitcher();
+          renderFilePreview('claimPreviewBox', file.fileBlob, file.fileName, file.fileType);
+        });
+        tabsList.appendChild(tabBtn);
+      });
+    } else {
+      tabsContainer.style.display = 'none';
+    }
+  }
+}
+
 // Claim File Lookup & Metadata Sidebar Populator
 async function lookupClaimCode(codeToSearch) {
   const codeInput = document.getElementById('claimCodeInput');
@@ -685,11 +776,9 @@ async function lookupClaimCode(codeToSearch) {
   saveRecentCode(drop.code);
 
   currentClaimDrop = drop;
+  currentPreviewIndex = 0;
 
   // Populate Sidebar Metadata
-  const previewWindowFilename = document.getElementById('previewWindowFilename');
-  if (previewWindowFilename) previewWindowFilename.textContent = drop.fileName;
-
   const sidebarFileName = document.getElementById('sidebarFileName');
   if (sidebarFileName) sidebarFileName.textContent = drop.fileName;
 
@@ -740,11 +829,15 @@ async function lookupClaimCode(codeToSearch) {
   const pwUnlockForm = document.getElementById('passwordUnlockForm');
   if (drop.isEncrypted) {
     if (pwUnlockForm) pwUnlockForm.style.display = 'block';
-    currentDecryptedBlob = null;
+    currentDecryptedFiles = [];
   } else {
     if (pwUnlockForm) pwUnlockForm.style.display = 'none';
-    currentDecryptedBlob = drop.fileBlob;
-    renderFilePreview('claimPreviewBox', drop.fileBlob, drop.fileName, drop.fileType);
+    currentDecryptedFiles = drop.files;
+    renderClaimFileSwitcher();
+    const activeFile = currentDecryptedFiles[0];
+    if (activeFile) {
+      renderFilePreview('claimPreviewBox', activeFile.fileBlob, activeFile.fileName, activeFile.fileType);
+    }
   }
 
   if (resultContainer) {
@@ -819,6 +912,108 @@ function renderFilePreview(containerId, blob, fileName, fileType) {
   }
 }
 
+// Multi-File Upload UI Renderers
+function renderSelectedFilesUI() {
+  const promptInfo = document.getElementById('dropPromptInfo');
+  const selInfo = document.getElementById('fileSelectionInfo');
+  const countBadge = document.getElementById('selectedFileCountBadge');
+  const totalSizeEl = document.getElementById('selectedTotalSize');
+  const listContainer = document.getElementById('selectedFilesList');
+  const addMoreBtn = document.getElementById('btnAddMoreFiles');
+
+  if (selectedFiles.length === 0) {
+    if (promptInfo) promptInfo.style.display = 'flex';
+    if (selInfo) selInfo.style.display = 'none';
+    return;
+  }
+
+  if (promptInfo) promptInfo.style.display = 'none';
+  if (selInfo) selInfo.style.display = 'flex';
+
+  if (countBadge) {
+    countBadge.textContent = selectedFiles.length === 1
+      ? '1 File Ready'
+      : `${selectedFiles.length} / 5 Files Ready`;
+  }
+
+  const totalBytes = selectedFiles.reduce((acc, f) => acc + (f.size || 0), 0);
+  if (totalSizeEl) {
+    totalSizeEl.textContent = formatBytes(totalBytes);
+  }
+
+  if (addMoreBtn) {
+    addMoreBtn.style.display = selectedFiles.length >= 5 ? 'none' : 'inline-flex';
+  }
+
+  if (listContainer) {
+    listContainer.innerHTML = '';
+    selectedFiles.forEach((file, index) => {
+      const item = document.createElement('div');
+      item.className = 'w-full bg-surface-container/90 border border-outline-variant/30 rounded-xl p-2.5 flex items-center justify-between gap-3 text-left transition-all hover:border-primary/40';
+      const iconName = getFileIcon(file.type, file.name);
+      item.innerHTML = `
+        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+          <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-base">${iconName}</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="font-semibold text-xs text-on-surface truncate">${file.name}</div>
+            <div class="text-[10px] text-on-surface-variant font-mono">${formatBytes(file.size)}</div>
+          </div>
+        </div>
+        <button type="button" class="btn-remove-file p-1 text-on-surface-variant hover:text-error hover:bg-error/10 rounded-lg transition-colors shrink-0" title="Remove file">
+          <span class="material-symbols-outlined text-base">close</span>
+        </button>
+      `;
+      const delBtn = item.querySelector('.btn-remove-file');
+      if (delBtn) {
+        delBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeSelectedFile(index);
+        });
+      }
+      listContainer.appendChild(item);
+    });
+  }
+}
+
+function handleIncomingFiles(fileList) {
+  if (!fileList || fileList.length === 0) return;
+
+  const currentCount = selectedFiles.length;
+  const availableSlots = 5 - currentCount;
+
+  if (availableSlots <= 0) {
+    showToast('Maximum 5 files limit reached.', 'error');
+    return;
+  }
+
+  const incomingArray = Array.from(fileList);
+  const filesToAdd = incomingArray.slice(0, availableSlots);
+  selectedFiles.push(...filesToAdd);
+
+  if (incomingArray.length > availableSlots) {
+    showToast(`Maximum 5 files allowed. Added ${filesToAdd.length} file(s).`, 'info');
+  } else {
+    showToast(`Added ${filesToAdd.length} file(s).`, 'success');
+  }
+
+  renderSelectedFilesUI();
+}
+
+function removeSelectedFile(index) {
+  if (index >= 0 && index < selectedFiles.length) {
+    const removed = selectedFiles.splice(index, 1);
+    showToast(`Removed ${removed[0].name}`, 'info');
+    renderSelectedFilesUI();
+  }
+}
+
+function clearAllSelectedFiles() {
+  selectedFiles = [];
+  renderSelectedFilesUI();
+}
+
 // Initialize Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
   // Hero Action Buttons
@@ -852,9 +1047,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (dropzone && fileInput) {
     dropzone.addEventListener('click', (e) => {
-      if (e.target.id !== 'btnChangeFile') {
-        fileInput.click();
+      if (e.target.closest('#btnAddMoreFiles') || e.target.closest('#btnClearAllFiles') || e.target.closest('.btn-remove-file')) {
+        return;
       }
+      fileInput.click();
     });
 
     dropzone.addEventListener('dragover', (e) => {
@@ -867,42 +1063,33 @@ document.addEventListener('DOMContentLoaded', () => {
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropzone.classList.remove('drag-active');
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleFileSelected(e.dataTransfer.files[0]);
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleIncomingFiles(e.dataTransfer.files);
       }
     });
 
     fileInput.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        handleFileSelected(e.target.files[0]);
+      if (e.target.files && e.target.files.length > 0) {
+        handleIncomingFiles(e.target.files);
+        fileInput.value = ''; // Reset file input so re-selecting same file works
       }
     });
   }
 
-  const changeBtn = document.getElementById('btnChangeFile');
-  if (changeBtn) {
-    changeBtn.addEventListener('click', (e) => {
+  const addMoreBtn = document.getElementById('btnAddMoreFiles');
+  if (addMoreBtn && fileInput) {
+    addMoreBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       fileInput.click();
     });
   }
 
-  function handleFileSelected(file) {
-    selectedFile = file;
-    const dropPromptInfo = document.getElementById('dropPromptInfo');
-    if (dropPromptInfo) dropPromptInfo.style.display = 'none';
-
-    const fileSelectionInfo = document.getElementById('fileSelectionInfo');
-    if (fileSelectionInfo) fileSelectionInfo.style.display = 'block';
-
-    const selectedFileName = document.getElementById('selectedFileName');
-    if (selectedFileName) selectedFileName.textContent = file.name;
-
-    const selectedMeta = document.getElementById('selectedMeta');
-    if (selectedMeta) selectedMeta.textContent = `${formatBytes(file.size)} • ${file.type || 'Unknown type'}`;
-
-    const optionsSection = document.getElementById('optionsSection');
-    if (optionsSection) optionsSection.style.display = 'block';
+  const clearAllBtn = document.getElementById('btnClearAllFiles');
+  if (clearAllBtn) {
+    clearAllBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearAllSelectedFiles();
+    });
   }
 
   // Password Checkbox
@@ -973,7 +1160,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Password Unlock Submit
+  // Password Unlock Submit (Decrypts all files in drop)
   const btnUnlockFile = document.getElementById('btnUnlockFile');
   if (btnUnlockFile) {
     btnUnlockFile.addEventListener('click', async () => {
@@ -981,11 +1168,21 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!password.trim() || !currentClaimDrop) return;
 
       try {
-        const blob = await decryptFile(currentClaimDrop.fileBlob, password.trim(), currentClaimDrop.fileType);
-        currentDecryptedBlob = blob;
-        showToast('File unlocked!', 'success');
+        currentDecryptedFiles = [];
+        for (const f of currentClaimDrop.files) {
+          const blob = await decryptFile(f.fileBlob, password.trim(), f.fileType);
+          currentDecryptedFiles.push({ ...f, fileBlob: blob });
+        }
+
+        currentPreviewIndex = 0;
+        showToast('All files unlocked successfully!', 'success');
         document.getElementById('passwordUnlockForm').style.display = 'none';
-        renderFilePreview('claimPreviewBox', blob, currentClaimDrop.fileName, currentClaimDrop.fileType);
+        renderClaimFileSwitcher();
+        
+        const activeFile = currentDecryptedFiles[0];
+        if (activeFile) {
+          renderFilePreview('claimPreviewBox', activeFile.fileBlob, activeFile.fileName, activeFile.fileType);
+        }
 
         // Smooth scroll to preview window
         setTimeout(() => {
@@ -1005,29 +1202,49 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Download Trigger
+  // Download Trigger (Current Selected File)
   const btnDownloadFile = document.getElementById('btnDownloadFile');
   if (btnDownloadFile) {
     btnDownloadFile.addEventListener('click', async () => {
-      if (!currentDecryptedBlob || !currentClaimDrop) return;
+      if (!currentDecryptedFiles || currentDecryptedFiles.length === 0 || !currentClaimDrop) return;
 
-      const url = URL.createObjectURL(currentDecryptedBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = currentClaimDrop.fileName || 'download';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const fileToDownload = currentDecryptedFiles[currentPreviewIndex] || currentDecryptedFiles[0];
+      downloadSingleBlob(fileToDownload.fileBlob, fileToDownload.fileName);
 
       const updated = await incrementDownload(currentClaimDrop.code);
       if (updated?.deletedAfterDownload) {
         showToast('File downloaded! Note: 1-time drop removed.', 'info');
       } else {
-        showToast('Download started!', 'success');
+        showToast(`Download started: ${fileToDownload.fileName}`, 'success');
       }
       if (updated) {
-        document.getElementById('sidebarDownloads').textContent = updated.downloadsCount || 0;
+        const dlCountEl = document.getElementById('sidebarDownloads');
+        if (dlCountEl) dlCountEl.textContent = updated.downloadsCount || 0;
+      }
+      updateActiveBadge();
+    });
+  }
+
+  // Download All Files in Batch (Staggered multi-download)
+  const btnDownloadAllFiles = document.getElementById('btnDownloadAllFiles');
+  if (btnDownloadAllFiles) {
+    btnDownloadAllFiles.addEventListener('click', async () => {
+      if (!currentDecryptedFiles || currentDecryptedFiles.length === 0 || !currentClaimDrop) return;
+
+      showToast(`Downloading all ${currentDecryptedFiles.length} file(s)...`, 'info');
+      currentDecryptedFiles.forEach((file, index) => {
+        setTimeout(() => {
+          downloadSingleBlob(file.fileBlob, file.fileName);
+        }, index * 350);
+      });
+
+      const updated = await incrementDownload(currentClaimDrop.code);
+      if (updated?.deletedAfterDownload) {
+        showToast('All files downloaded! Note: 1-time drop removed.', 'info');
+      }
+      if (updated) {
+        const dlCountEl = document.getElementById('sidebarDownloads');
+        if (dlCountEl) dlCountEl.textContent = updated.downloadsCount || 0;
       }
       updateActiveBadge();
     });
@@ -1239,8 +1456,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       lightbox.style.display = 'flex';
-      document.getElementById('lightboxFilename').textContent = currentClaimDrop.fileName;
-      renderFilePreview('lightboxContentBox', currentDecryptedBlob, currentClaimDrop.fileName, currentClaimDrop.fileType);
+      const activeFile = currentDecryptedFiles && currentDecryptedFiles.length > 0
+        ? (currentDecryptedFiles[currentPreviewIndex] || currentDecryptedFiles[0])
+        : { fileBlob: currentClaimDrop.fileBlob, fileName: currentClaimDrop.fileName, fileType: currentClaimDrop.fileType };
+      document.getElementById('lightboxFilename').textContent = activeFile.fileName;
+      renderFilePreview('lightboxContentBox', activeFile.fileBlob, activeFile.fileName, activeFile.fileType);
     });
   }
 

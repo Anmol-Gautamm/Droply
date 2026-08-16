@@ -124,7 +124,14 @@ export default function MyDrops({ onSelectDrop, addToast }) {
                       </span>
                     </td>
                     <td>
-                      <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{drop.fileName}</div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>
+                        {drop.fileName}
+                        {drop.files && drop.files.length > 1 && (
+                          <span style={{ fontSize: '0.8rem', color: 'var(--color-primary)', marginLeft: '6px', fontWeight: 500 }}>
+                            ({drop.files.length} files)
+                          </span>
+                        )}
+                      </div>
                       {drop.isEncrypted && (
                         <span style={{ fontSize: '0.75rem', color: 'var(--color-secondary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                           <Shield size={12} /> Encrypted

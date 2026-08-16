@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Download, Lock, Key, AlertTriangle, FileCheck, Clock, Eye, EyeOff } from 'lucide-react';
+import { Search, Download, Lock, Key, AlertTriangle, FileCheck, Clock, Eye, EyeOff, FileText, Layers } from 'lucide-react';
 import { getDrop, incrementDownload } from '../services/storage';
 import { decryptFile } from '../services/crypto';
 import FilePreview from './FilePreview';
@@ -7,7 +7,8 @@ import FilePreview from './FilePreview';
 export default function ClaimFile({ initialCode, addToast }) {
   const [inputCode, setInputCode] = useState(initialCode || '');
   const [dropData, setDropData] = useState(null);
-  const [decryptedBlob, setDecryptedBlob] = useState(null);
+  const [decryptedFiles, setDecryptedFiles] = useState([]);
+  const [activeFileIndex, setActiveFileIndex] = useState(0);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
@@ -27,7 +28,8 @@ export default function ClaimFile({ initialCode, addToast }) {
     setIsLoading(true);
     setNotFound(false);
     setDropData(null);
-    setDecryptedBlob(null);
+    setDecryptedFiles([]);
+    setActiveFileIndex(0);
 
     try {
       const drop = await getDrop(code);
@@ -37,7 +39,7 @@ export default function ClaimFile({ initialCode, addToast }) {
       } else {
         setDropData(drop);
         if (!drop.isEncrypted) {
-          setDecryptedBlob(drop.fileBlob);
+          setDecryptedFiles(drop.files || [{ fileName: drop.fileName, fileBlob: drop.fileBlob, fileType: drop.fileType, fileSize: drop.fileSize }]);
         }
       }
     } catch (err) {
@@ -54,9 +56,17 @@ export default function ClaimFile({ initialCode, addToast }) {
 
     try {
       setPasswordError(false);
-      const blob = await decryptFile(dropData.fileBlob, password.trim(), dropData.fileType);
-      setDecryptedBlob(blob);
-      addToast('File unlocked successfully!', 'success');
+      const filesToDecrypt = dropData.files || [{ fileName: dropData.fileName, fileBlob: dropData.fileBlob, fileType: dropData.fileType, fileSize: dropData.fileSize }];
+      const decryptedList = [];
+
+      for (const f of filesToDecrypt) {
+        const blob = await decryptFile(f.fileBlob, password.trim(), f.fileType);
+        decryptedList.push({ ...f, fileBlob: blob });
+      }
+
+      setDecryptedFiles(decryptedList);
+      setActiveFileIndex(0);
+      addToast('All files unlocked successfully!', 'success');
     } catch (err) {
       console.error(err);
       setPasswordError(true);
@@ -64,35 +74,56 @@ export default function ClaimFile({ initialCode, addToast }) {
     }
   };
 
-  const handleDownload = async () => {
-    if (!decryptedBlob || !dropData) return;
+  const downloadSingle = (blob, filename) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || 'download';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const handleDownloadActive = async () => {
+    if (!decryptedFiles || decryptedFiles.length === 0 || !dropData) return;
 
     try {
-      // Trigger Blob download
-      const url = URL.createObjectURL(decryptedBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = dropData.fileName || 'download';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const current = decryptedFiles[activeFileIndex] || decryptedFiles[0];
+      downloadSingle(current.fileBlob, current.fileName);
 
-      // Increment download counter or handle 1-time deletion
       const updated = await incrementDownload(dropData.code);
       if (updated?.deletedAfterDownload) {
-        addToast('File downloaded! Note: This drop was set to 1-time download and is now removed.', 'info');
+        addToast('File downloaded! Note: 1-time drop removed.', 'info');
       } else {
-        addToast('File download started!', 'success');
+        addToast(`Download started: ${current.fileName}`, 'success');
       }
-
-      // Update state
-      if (updated) {
-        setDropData(updated);
-      }
+      if (updated) setDropData(updated);
     } catch (err) {
       console.error('Download error:', err);
       addToast('Failed to download file.', 'error');
+    }
+  };
+
+  const handleDownloadAll = async () => {
+    if (!decryptedFiles || decryptedFiles.length === 0 || !dropData) return;
+
+    try {
+      addToast(`Downloading ${decryptedFiles.length} file(s)...`, 'info');
+      decryptedFiles.forEach((file, index) => {
+        setTimeout(() => {
+          downloadSingle(file.fileBlob, file.fileName);
+        }, index * 350);
+      });
+
+      const updated = await incrementDownload(dropData.code);
+      if (updated?.deletedAfterDownload) {
+        addToast('All files downloaded! Note: 1-time drop removed.', 'info');
+      }
+      if (updated) setDropData(updated);
+    } catch (err) {
+      console.error('Download error:', err);
+      addToast('Failed to download files.', 'error');
     }
   };
 
@@ -104,14 +135,16 @@ export default function ClaimFile({ initialCode, addToast }) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const currentFile = decryptedFiles[activeFileIndex] || decryptedFiles[0];
+
   return (
     <div className="glass-panel" style={{ padding: '36px 28px', maxWidth: '720px', margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '28px' }}>
         <h2 className="gradient-text" style={{ fontSize: '2rem', marginBottom: '8px' }}>
-          Access & Claim Shared File
+          Access & Claim Shared Files
         </h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-          Enter the 6-character drop code to preview and download the file.
+          Enter the 6-character drop code to preview and download up to 5 shared files.
         </p>
       </div>
 
@@ -184,11 +217,11 @@ export default function ClaimFile({ initialCode, addToast }) {
             {dropData.fileName}
           </h3>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '16px' }}>
-            Size: {formatSize(dropData.fileSize)} • Type: {dropData.fileType || 'File'}
+            Total Size: {formatSize(dropData.fileSize)} • {dropData.files?.length || 1} file(s)
           </p>
 
           {/* Password Protection Form */}
-          {dropData.isEncrypted && !decryptedBlob && (
+          {dropData.isEncrypted && decryptedFiles.length === 0 && (
             <form onSubmit={handleDecrypt} style={{
               background: 'rgba(139, 92, 246, 0.1)',
               border: '1px solid rgba(139, 92, 246, 0.3)',
@@ -198,7 +231,7 @@ export default function ClaimFile({ initialCode, addToast }) {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-secondary)', marginBottom: '12px' }}>
                 <Lock size={20} />
-                <h4 style={{ margin: 0 }}>This drop is password protected</h4>
+                <h4 style={{ margin: 0 }}>This drop is password protected ({dropData.files?.length || 1} files)</h4>
               </div>
 
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -233,7 +266,7 @@ export default function ClaimFile({ initialCode, addToast }) {
                   </button>
                 </div>
                 <button type="submit" className="btn-primary" style={{ flexShrink: 0 }}>
-                  <Key size={16} /> Unlock
+                  <Key size={16} /> Unlock All
                 </button>
               </div>
               {passwordError && (
@@ -244,24 +277,74 @@ export default function ClaimFile({ initialCode, addToast }) {
             </form>
           )}
 
-          {/* Decrypted File Preview & Download */}
-          {decryptedBlob && (
+          {/* Decrypted File Preview & Multi-file Switcher */}
+          {decryptedFiles.length > 0 && currentFile && (
             <div>
+              {/* Multi-file Tabs */}
+              {decryptedFiles.length > 1 && (
+                <div style={{
+                  display: 'flex',
+                  gap: '8px',
+                  overflowX: 'auto',
+                  paddingBottom: '10px',
+                  marginBottom: '14px',
+                  borderBottom: '1px solid var(--border-glass)'
+                }}>
+                  {decryptedFiles.map((file, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setActiveFileIndex(idx)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '8px',
+                        border: idx === activeFileIndex ? '1px solid var(--color-primary)' : '1px solid var(--border-glass)',
+                        background: idx === activeFileIndex ? 'rgba(6, 182, 212, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                        color: idx === activeFileIndex ? 'var(--color-primary)' : 'var(--text-muted)',
+                        fontSize: '0.8rem',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        whiteSpace: 'nowrap',
+                        fontWeight: idx === activeFileIndex ? 600 : 400
+                      }}
+                    >
+                      <FileText size={14} />
+                      <span style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {file.fileName}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <FilePreview
-                fileBlob={decryptedBlob}
-                fileName={dropData.fileName}
-                fileType={dropData.fileType}
+                fileBlob={currentFile.fileBlob}
+                fileName={currentFile.fileName}
+                fileType={currentFile.fileType}
               />
 
-              <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '20px', flexWrap: 'wrap' }}>
                 <button
                   className="btn-primary"
-                  onClick={handleDownload}
-                  style={{ padding: '14px 40px', fontSize: '1.05rem' }}
+                  onClick={handleDownloadActive}
+                  style={{ padding: '14px 28px', fontSize: '1rem' }}
                 >
-                  <Download size={20} />
-                  Download File
+                  <Download size={18} />
+                  Download {decryptedFiles.length > 1 ? `File (${activeFileIndex + 1}/${decryptedFiles.length})` : 'File'}
                 </button>
+
+                {decryptedFiles.length > 1 && (
+                  <button
+                    className="btn-secondary"
+                    onClick={handleDownloadAll}
+                    style={{ padding: '14px 28px', fontSize: '1rem', background: 'rgba(139, 92, 246, 0.15)', border: '1px solid rgba(139, 92, 246, 0.4)', color: 'var(--color-secondary)' }}
+                  >
+                    <Layers size={18} />
+                    Download All ({decryptedFiles.length} Files)
+                  </button>
+                )}
               </div>
             </div>
           )}
