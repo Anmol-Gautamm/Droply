@@ -16,9 +16,6 @@
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap"
     rel="stylesheet" />
 
-  <!-- Lucide Icons Library -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
 
 
   <script id="tailwind-config">
@@ -1240,8 +1237,8 @@ void main() {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div
             class="interactive-card bg-surface-container-low backdrop-blur-md border border-outline-variant/30 rounded-2xl p-8 shadow-xl cursor-pointer">
-            <div class="card-icon-box inline-block mb-4">
-              <i class="text-tertiary w-10 h-10 inline-block" data-lucide="shield-check"></i>
+            <div class="card-icon-box inline-block mb-4 text-tertiary">
+              <span class="material-symbols-outlined text-4xl">verified_user</span>
             </div>
             <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-3">Military Grade Encryption</h3>
             <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">End-to-end AES-256 encryption
@@ -1249,8 +1246,8 @@ void main() {
           </div>
           <div
             class="interactive-card bg-surface-container-low backdrop-blur-md border border-outline-variant/30 rounded-2xl p-8 shadow-xl cursor-pointer">
-            <div class="card-icon-box inline-block mb-4">
-              <i class="text-secondary w-10 h-10 inline-block" data-lucide="zap"></i>
+            <div class="card-icon-box inline-block mb-4 text-secondary">
+              <span class="material-symbols-outlined text-4xl">bolt</span>
             </div>
             <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-3">Blazing Fast Infrastructure
             </h3>
@@ -1259,8 +1256,8 @@ void main() {
           </div>
           <div
             class="interactive-card bg-surface-container-low backdrop-blur-md border border-outline-variant/30 rounded-2xl p-8 shadow-xl cursor-pointer">
-            <div class="card-icon-box inline-block mb-4">
-              <i class="text-primary w-10 h-10 inline-block" data-lucide="eye-off"></i>
+            <div class="card-icon-box inline-block mb-4 text-primary">
+              <span class="material-symbols-outlined text-4xl">visibility_off</span>
             </div>
             <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-3">Zero-Knowledge Privacy</h3>
             <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">We have zero visibility into
@@ -1393,12 +1390,6 @@ void main() {
       </nav>
     </div>
   </footer>
-
-  <script>
-    if (typeof lucide !== 'undefined') {
-      lucide.createIcons();
-    }
-  </script>
 
   <!-- Application Engine -->
   <script src="app.js"></script>
