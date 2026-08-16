@@ -1266,12 +1266,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Dashboard Search Input Listener
+  // Dashboard Search Input Listener with Debounce
   const searchInput = document.getElementById('dashboardSearchInput');
   if (searchInput) {
+    let searchDebounceTimer = null;
     searchInput.addEventListener('input', (e) => {
-      dashboardSearchQuery = e.target.value;
-      renderMyDrops();
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        dashboardSearchQuery = e.target.value;
+        renderMyDrops();
+      }, 120);
     });
   }
 
