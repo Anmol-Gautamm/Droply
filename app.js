@@ -519,9 +519,15 @@ async function processCreateDrop() {
 
     // Reset upload state
     selectedFile = null;
-    document.getElementById('fileSelectionInfo').style.display = 'none';
-    document.getElementById('dropPromptInfo').style.display = 'block';
-    document.getElementById('optionsSection').style.display = 'none';
+    const fileSelectionInfo = document.getElementById('fileSelectionInfo');
+    if (fileSelectionInfo) fileSelectionInfo.style.display = 'none';
+
+    const dropPromptInfo = document.getElementById('dropPromptInfo');
+    if (dropPromptInfo) dropPromptInfo.style.display = 'block';
+
+    const optionsSection = document.getElementById('optionsSection');
+    if (optionsSection) optionsSection.style.display = 'none';
+
     const passIn = document.getElementById('passInput');
     if (passIn) {
       passIn.value = '';
@@ -534,8 +540,11 @@ async function processCreateDrop() {
       toggleBtn.setAttribute('title', 'Show password');
       toggleBtn.setAttribute('aria-label', 'Show password');
     }
-    document.getElementById('enablePassCheck').checked = false;
-    document.getElementById('passInputGroup').style.display = 'none';
+    const enablePassCheckEl = document.getElementById('enablePassCheck');
+    if (enablePassCheckEl) enablePassCheckEl.checked = false;
+
+    const passInputGroup = document.getElementById('passInputGroup');
+    if (passInputGroup) passInputGroup.style.display = 'none';
   } catch (err) {
     console.error(err);
     showToast('Failed to drop file: ' + err.message, 'error');
@@ -574,9 +583,11 @@ function getShareableUrl(code) {
 function openShareModal(drop) {
   const modal = document.getElementById('shareModal');
   if (!modal) return;
-  document.getElementById('modalCodeBadge').textContent = drop.code;
+  const modalCodeBadge = document.getElementById('modalCodeBadge');
+  if (modalCodeBadge) modalCodeBadge.textContent = drop.code;
   const shareUrl = getShareableUrl(drop.code);
-  document.getElementById('modalShareUrl').value = shareUrl;
+  const modalShareUrl = document.getElementById('modalShareUrl');
+  if (modalShareUrl) modalShareUrl.value = shareUrl;
 
   const expiryTitle = document.getElementById('modalExpiryTitle');
   if (expiryTitle) {
@@ -651,7 +662,8 @@ function renderRecentCodes() {
 
 // Claim File Lookup & Metadata Sidebar Populator
 async function lookupClaimCode(codeToSearch) {
-  const code = (codeToSearch || document.getElementById('claimCodeInput').value).trim().toUpperCase();
+  const codeInput = document.getElementById('claimCodeInput');
+  const code = (codeToSearch || (codeInput ? codeInput.value : '')).trim().toUpperCase();
   if (!code) {
     showToast('Please enter a 6-character code!', 'error');
     return;
@@ -659,12 +671,12 @@ async function lookupClaimCode(codeToSearch) {
 
   const resultContainer = document.getElementById('claimResultContainer');
   const notFoundBox = document.getElementById('claimNotFound');
-  notFoundBox.style.display = 'none';
-  resultContainer.style.display = 'none';
+  if (notFoundBox) notFoundBox.style.display = 'none';
+  if (resultContainer) resultContainer.style.display = 'none';
 
   const drop = await getDrop(code);
   if (!drop || drop.expired) {
-    notFoundBox.style.display = 'block';
+    if (notFoundBox) notFoundBox.style.display = 'block';
     showToast('No active drop found for code: ' + code, 'error');
     return;
   }
@@ -675,37 +687,48 @@ async function lookupClaimCode(codeToSearch) {
   currentClaimDrop = drop;
 
   // Populate Sidebar Metadata
-  document.getElementById('previewWindowFilename').textContent = drop.fileName;
-  document.getElementById('sidebarFileName').textContent = drop.fileName;
-  document.getElementById('sidebarFileIcon').textContent = getFileIcon(drop.fileType, drop.fileName);
+  const previewWindowFilename = document.getElementById('previewWindowFilename');
+  if (previewWindowFilename) previewWindowFilename.textContent = drop.fileName;
+
+  const sidebarFileName = document.getElementById('sidebarFileName');
+  if (sidebarFileName) sidebarFileName.textContent = drop.fileName;
+
+  const sidebarFileIcon = document.getElementById('sidebarFileIcon');
+  if (sidebarFileIcon) sidebarFileIcon.textContent = getFileIcon(drop.fileType, drop.fileName);
   
   const dateStr = new Date(drop.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  document.getElementById('sidebarDateAdded').textContent = `Added ${dateStr}`;
+  const sidebarDateAdded = document.getElementById('sidebarDateAdded');
+  if (sidebarDateAdded) sidebarDateAdded.textContent = `Added ${dateStr}`;
   
-  document.getElementById('sidebarFileSize').textContent = formatBytes(drop.fileSize);
-  document.getElementById('sidebarDownloads').textContent = drop.downloadsCount || 0;
+  const sidebarFileSize = document.getElementById('sidebarFileSize');
+  if (sidebarFileSize) sidebarFileSize.textContent = formatBytes(drop.fileSize);
+
+  const sidebarDownloads = document.getElementById('sidebarDownloads');
+  if (sidebarDownloads) sidebarDownloads.textContent = drop.downloadsCount || 0;
 
   // Expiration Progress Bar
   const expiryBar = document.getElementById('sidebarExpiryBar');
   const expiryText = document.getElementById('sidebarExpiryText');
-  if (drop.expiryType === '1time') {
-    expiryText.textContent = '1-time download';
-    expiryBar.style.width = '100%';
-  } else if (drop.expiryType === 'never') {
-    expiryText.textContent = 'Permanent (No Expiration)';
-    expiryBar.style.width = '100%';
-  } else if (drop.expiresAt) {
-    const totalMs = drop.expiresAt - drop.createdAt;
-    const remainingMs = drop.expiresAt - Date.now();
-    const pct = Math.max(5, Math.min(100, Math.round((remainingMs / totalMs) * 100)));
-    expiryBar.style.width = `${pct}%`;
-    const mins = Math.floor(remainingMs / (1000 * 60));
-    if (mins < 60) expiryText.textContent = `${mins} mins`;
-    else if (mins < 2880) expiryText.textContent = `${Math.floor(mins / 60)} hours`;
-    else expiryText.textContent = `${Math.floor(mins / (60 * 24))} days`;
-  } else {
-    expiryText.textContent = 'No expiry';
-    expiryBar.style.width = '100%';
+  if (expiryText && expiryBar) {
+    if (drop.expiryType === '1time') {
+      expiryText.textContent = '1-time download';
+      expiryBar.style.width = '100%';
+    } else if (drop.expiryType === 'never') {
+      expiryText.textContent = 'Permanent (No Expiration)';
+      expiryBar.style.width = '100%';
+    } else if (drop.expiresAt) {
+      const totalMs = drop.expiresAt - drop.createdAt;
+      const remainingMs = drop.expiresAt - Date.now();
+      const pct = Math.max(5, Math.min(100, Math.round((remainingMs / totalMs) * 100)));
+      expiryBar.style.width = `${pct}%`;
+      const mins = Math.floor(remainingMs / (1000 * 60));
+      if (mins < 60) expiryText.textContent = `${mins} mins`;
+      else if (mins < 2880) expiryText.textContent = `${Math.floor(mins / 60)} hours`;
+      else expiryText.textContent = `${Math.floor(mins / (60 * 24))} days`;
+    } else {
+      expiryText.textContent = 'No expiry';
+      expiryBar.style.width = '100%';
+    }
   }
 
   // Encryption badge
@@ -714,18 +737,19 @@ async function lookupClaimCode(codeToSearch) {
     encBadge.style.display = drop.isEncrypted ? 'flex' : 'none';
   }
 
+  const pwUnlockForm = document.getElementById('passwordUnlockForm');
   if (drop.isEncrypted) {
-    document.getElementById('passwordUnlockForm').style.display = 'block';
+    if (pwUnlockForm) pwUnlockForm.style.display = 'block';
     currentDecryptedBlob = null;
   } else {
-    document.getElementById('passwordUnlockForm').style.display = 'none';
+    if (pwUnlockForm) pwUnlockForm.style.display = 'none';
     currentDecryptedBlob = drop.fileBlob;
     renderFilePreview('claimPreviewBox', drop.fileBlob, drop.fileName, drop.fileType);
   }
 
-
-
-  resultContainer.style.display = 'flex';
+  if (resultContainer) {
+    resultContainer.style.display = 'flex';
+  }
 
   // Automatically scroll down to the file preview and metadata section
   setTimeout(() => {
@@ -865,11 +889,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function handleFileSelected(file) {
     selectedFile = file;
-    document.getElementById('dropPromptInfo').style.display = 'none';
-    document.getElementById('fileSelectionInfo').style.display = 'block';
-    document.getElementById('selectedFileName').textContent = file.name;
-    document.getElementById('selectedMeta').textContent = `${formatBytes(file.size)} • ${file.type || 'Unknown type'}`;
-    document.getElementById('optionsSection').style.display = 'block';
+    const dropPromptInfo = document.getElementById('dropPromptInfo');
+    if (dropPromptInfo) dropPromptInfo.style.display = 'none';
+
+    const fileSelectionInfo = document.getElementById('fileSelectionInfo');
+    if (fileSelectionInfo) fileSelectionInfo.style.display = 'block';
+
+    const selectedFileName = document.getElementById('selectedFileName');
+    if (selectedFileName) selectedFileName.textContent = file.name;
+
+    const selectedMeta = document.getElementById('selectedMeta');
+    if (selectedMeta) selectedMeta.textContent = `${formatBytes(file.size)} • ${file.type || 'Unknown type'}`;
+
+    const optionsSection = document.getElementById('optionsSection');
+    if (optionsSection) optionsSection.style.display = 'block';
   }
 
   // Password Checkbox
