@@ -123,7 +123,7 @@ export default function DropZone({ onDropCreated, addToast }) {
           Drop & Share Anything
         </h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-          Share up to 5 files together with instant code and encrypted links.
+          Share multiple files together with instant code and encrypted links.
         </p>
       </div>
 
@@ -162,7 +162,7 @@ export default function DropZone({ onDropCreated, addToast }) {
                 fontWeight: 600,
                 fontSize: '0.9rem'
               }}>
-                <CheckCircle size={16} /> {selectedFiles.length} / 5 File{selectedFiles.length > 1 ? 's' : ''} Ready
+                <CheckCircle size={16} /> {selectedFiles.length} File{selectedFiles.length > 1 ? 's' : ''} Ready
               </span>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'var(--font-mono)' }}>
                 Total: {formatSize(totalBytes)}
@@ -239,7 +239,7 @@ export default function DropZone({ onDropCreated, addToast }) {
                     gap: '4px'
                   }}
                 >
-                  <Plus size={14} /> Add More Files (Max 5)
+                  <Plus size={14} /> Add Files
                 </button>
               )}
               <button

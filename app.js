@@ -933,7 +933,7 @@ function renderSelectedFilesUI() {
   if (countBadge) {
     countBadge.textContent = selectedFiles.length === 1
       ? '1 File Ready'
-      : `${selectedFiles.length} / 5 Files Ready`;
+      : `${selectedFiles.length} Files Ready`;
   }
 
   const totalBytes = selectedFiles.reduce((acc, f) => acc + (f.size || 0), 0);
