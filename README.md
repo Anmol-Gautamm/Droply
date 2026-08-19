@@ -231,6 +231,16 @@ Droply/
 
 ---
 
+## ⌨️ Accessibility & Keyboard Shortcuts
+
+Droply is designed with accessibility and keyboard navigation in mind:
+- **Escape Key (`Esc`)**: Closes any open modal dialog (such as the Share Code modal).
+- **Tab Navigation**: Full tab index order across all input fields, buttons, and preview selectors.
+- **Interactive Toasts**: Toast notifications support keyboard focus, dismiss on `Enter` / `Space`, and include `aria-live` announcements for screen readers.
+- **Semantic ARIA Roles**: Structured with `role="navigation"`, `role="tab"`, and `role="dialog"` for assistive technology.
+
+---
+
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Anmol-Gautamm/Droply/issues).
