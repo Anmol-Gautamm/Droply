@@ -12,7 +12,16 @@ export default function ShareModal({ drop, onClose, addToast }) {
       spread: 70,
       origin: { y: 0.6 }
     });
-  }, [drop, shareUrl]);
+
+    // Handle Escape key press to close modal
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [drop, shareUrl, onClose]);
 
   const copyToClipboard = (text, label) => {
     navigator.clipboard.writeText(text);
@@ -20,10 +29,11 @@ export default function ShareModal({ drop, onClose, addToast }) {
   };
 
   return (
-    <div className="modal-overlay">
+    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Share Drop Modal">
       <div className="modal-content">
         <button
           onClick={onClose}
+          aria-label="Close modal"
           style={{
             position: 'absolute',
             top: '20px',
