@@ -102,24 +102,24 @@ export default function MyDrops({ onSelectDrop, addToast }) {
         </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
-          <table className="drops-table">
+          <table className="drops-table" role="table" aria-label="Active Drops List">
             <thead>
-              <tr>
-                <th>Code</th>
-                <th>File Name</th>
-                <th>Size</th>
-                <th>Expiration</th>
-                <th>Downloads</th>
-                <th>Actions</th>
+              <tr role="row">
+                <th scope="col">Code</th>
+                <th scope="col">File Name</th>
+                <th scope="col">Size</th>
+                <th scope="col">Expiration</th>
+                <th scope="col">Downloads</th>
+                <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody>
               {drops.map((drop) => {
                 const shareUrl = `${window.location.origin}${window.location.pathname}?code=${drop.code}`;
                 return (
-                  <tr key={drop.code}>
+                  <tr key={drop.code} role="row">
                     <td>
-                      <span className="code-badge" style={{ fontSize: '0.95rem', padding: '4px 10px' }}>
+                      <span className="code-badge" style={{ fontSize: '0.95rem', padding: '4px 10px' }} aria-label={`Drop code ${drop.code}`}>
                         {drop.code}
                       </span>
                     </td>
@@ -133,16 +133,16 @@ export default function MyDrops({ onSelectDrop, addToast }) {
                         )}
                       </div>
                       {drop.isEncrypted && (
-                        <span style={{ fontSize: '0.75rem', color: 'var(--color-secondary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                          <Shield size={12} /> Encrypted
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-secondary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }} aria-label="End-to-end encrypted drop">
+                          <Shield size={12} aria-hidden="true" /> Encrypted
                         </span>
                       )}
                     </td>
                     <td style={{ color: 'var(--text-muted)' }}>{formatSize(drop.fileSize)}</td>
                     <td style={{ color: 'var(--color-warning)' }}>{formatExpiry(drop)}</td>
                     <td>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
-                        <Download size={14} color="var(--color-primary)" />
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }} aria-label={`${drop.downloadsCount || 0} total downloads`}>
+                        <Download size={14} color="var(--color-primary)" aria-hidden="true" />
                         {drop.downloadsCount || 0}
                       </span>
                     </td>
@@ -152,24 +152,27 @@ export default function MyDrops({ onSelectDrop, addToast }) {
                           className="btn-secondary"
                           onClick={() => copyToClipboard(drop.code, 'Code')}
                           title="Copy Code"
+                          aria-label={`Copy code for ${drop.fileName}`}
                           style={{ padding: '6px 10px' }}
                         >
-                          <Copy size={14} />
+                          <Copy size={14} aria-hidden="true" />
                         </button>
                         <button
                           className="btn-secondary"
                           onClick={() => copyToClipboard(shareUrl, 'Link')}
                           title="Copy Share Link"
+                          aria-label={`Copy shareable URL for ${drop.fileName}`}
                           style={{ padding: '6px 10px' }}
                         >
-                          <ExternalLink size={14} />
+                          <ExternalLink size={14} aria-hidden="true" />
                         </button>
                         <button
                           className="btn-danger"
                           onClick={() => handleDelete(drop.code)}
                           title="Delete Drop"
+                          aria-label={`Delete drop ${drop.code}`}
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={14} aria-hidden="true" />
                         </button>
                       </div>
                     </td>
