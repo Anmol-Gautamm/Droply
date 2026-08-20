@@ -156,6 +156,11 @@ export default function ClaimFile({ initialCode, addToast }) {
             className="code-input-large"
             placeholder="e.g. DROP-8492"
             value={inputCode}
+            aria-label="Enter 6-character drop code"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            maxLength={12}
             onChange={(e) => setInputCode(e.target.value.toUpperCase())}
             onKeyDown={(e) => e.key === 'Enter' && handleLookup()}
           />
@@ -163,9 +168,10 @@ export default function ClaimFile({ initialCode, addToast }) {
             className="btn-primary"
             onClick={() => handleLookup()}
             disabled={isLoading || !inputCode.trim()}
+            aria-label="Claim shared drop files"
             style={{ padding: '0 24px', flexShrink: 0 }}
           >
-            <Search size={20} />
+            <Search size={20} aria-hidden="true" />
             {isLoading ? 'Searching...' : 'Claim'}
           </button>
         </div>
