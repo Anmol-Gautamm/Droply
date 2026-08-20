@@ -1,5 +1,7 @@
 /**
  * IndexedDB & Cross-tab broadcast service for Droply
+ * Handles local persistence, multi-file bundling, automatic expiration pruning,
+ * and real-time tab synchronization via the BroadcastChannel API.
  */
 
 const DB_NAME = 'DroplyDB';
@@ -11,7 +13,8 @@ const broadcastChannel = typeof BroadcastChannel !== 'undefined'
   : null;
 
 /**
- * Open IndexedDB database
+ * Opens or initializes the IndexedDB database instance.
+ * @returns {Promise<IDBDatabase>}
  */
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -32,7 +35,8 @@ function openDB() {
 }
 
 /**
- * Generate a random 6-character short code like DROP-8492 or 739281
+ * Generates an unambiguous 6-character short code formatted as DROP-XXXX.
+ * @returns {string} E.g., 'DROP-8K9P'
  */
 export function generateShareCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -44,7 +48,10 @@ export function generateShareCode() {
 }
 
 /**
- * Save a new file drop into IndexedDB (supports up to 5 files)
+ * Persists a new file drop or multi-file bundle into IndexedDB.
+ * Broadcasts a DROP_CREATED event to synchronize all open browser tabs.
+ * @param {Object} dropOptions - Drop configuration and payload
+ * @returns {Promise<Object>} The persisted drop record
  */
 export async function saveDrop({ files, fileBlob, fileName, fileSize, fileType, expiryType, isEncrypted, password }) {
   const db = await openDB();
