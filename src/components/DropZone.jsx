@@ -130,6 +130,9 @@ export default function DropZone({ onDropCreated, addToast }) {
       {/* Drag & Drop Area */}
       <div
         className={`dropzone-container ${dragActive ? 'drag-active' : ''}`}
+        role="button"
+        tabIndex={0}
+        aria-label="Upload files dropzone. Drag files here or press Enter to browse files."
         onDragEnter={handleDrag}
         onDragOver={handleDrag}
         onDragLeave={handleDrag}
@@ -138,12 +141,20 @@ export default function DropZone({ onDropCreated, addToast }) {
           if (e.target.closest('.btn-remove-file') || e.target.closest('.action-btn-pill')) return;
           fileInputRef.current?.click();
         }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            if (e.target.closest('.btn-remove-file') || e.target.closest('.action-btn-pill')) return;
+            e.preventDefault();
+            fileInputRef.current?.click();
+          }
+        }}
       >
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileSelect}
           multiple
+          aria-hidden="true"
           style={{ display: 'none' }}
         />
 
